@@ -1,0 +1,43 @@
+--- nvidia-drivers-285.03/kernel/nv-linux.h.orig	2011-09-28 18:42:55.523481694 -0700
++++ nvidia-drivers-285.03/kernel/nv-linux.h	2011-09-28 18:44:04.411481685 -0700
+@@ -695,16 +695,16 @@
+ 
+ #if defined(NV_KMEM_CACHE_CREATE_PRESENT)
+ #if (NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT == 6)
+-#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type)            \
++#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type, flags)     \
+     {                                                           \
+         kmem_cache = kmem_cache_create(name, sizeof(type),      \
+-                        0, 0, NULL, NULL);                      \
++                        0, flags, NULL, NULL);                  \
+     }
+ #elif (NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT == 5)
+-#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type)            \
++#define NV_KMEM_CACHE_CREATE(kmem_cache, name, type, flags)     \
+     {                                                           \
+         kmem_cache = kmem_cache_create(name, sizeof(type),      \
+-                        0, 0, NULL);                            \
++                        0, flags, NULL);                        \
+     }
+ #else
+ #error "NV_KMEM_CACHE_CREATE_ARGUMENT_COUNT value unrecognized!"
+--- nvidia-drivers-275.09.07/kernel/nv.c	2011-06-09 00:42:32.000000000 +0200
++++ nvidia-drivers-275.09.07-patched/kernel//nv.c	2011-06-24 12:52:19.912000190 +0200
+@@ -1103,7 +1103,7 @@ static int __init nvidia_init_module(voi
+     NV_SPIN_LOCK_INIT(&km_lock);
+ #endif
+ 
+-    NV_KMEM_CACHE_CREATE(nv_stack_t_cache, "nv_stack_t", nv_stack_t);
++    NV_KMEM_CACHE_CREATE(nv_stack_t_cache, "nv_stack_t", nv_stack_t, SLAB_USERCOPY);
+     if (nv_stack_t_cache == NULL)
+     {
+         nv_printf(NV_DBG_ERRORS, "NVRM: stack cache allocation failed!\n");
+@@ -1218,7 +1218,7 @@ static int __init nvidia_init_module(voi
+     }
+ #endif
+ 
+-    NV_KMEM_CACHE_CREATE(nv_pte_t_cache, "nv_pte_t", nv_pte_t);
++    NV_KMEM_CACHE_CREATE(nv_pte_t_cache, "nv_pte_t", nv_pte_t, 0);
+     if (nv_pte_t_cache == NULL)
+     {
+         rc = -ENOMEM;

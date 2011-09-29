@@ -1,0 +1,14 @@
+diff -urN cairo-dock-2.2.0-4/src/gldit/CMakeLists.txt cairo-dock-2.2.0-4-new//src/gldit/CMakeLists.txt
+--- cairo-dock-2.2.0-4/src/gldit/CMakeLists.txt	2010-10-30 19:13:36.000000000 +0000
++++ cairo-dock-2.2.0-4-new//src/gldit/CMakeLists.txt	2010-10-30 19:27:45.000000000 +0000
+@@ -84,9 +84,7 @@
+ link_directories(
+ 	${PACKAGE_LIBRARY_DIRS}
+ 	${XEXTEND_LIBRARY_DIRS}
+-	${CMAKE_SOURCE_DIR}/src/gldit
+-	${CMAKE_SOURCE_DIR}/src/icon-factory
+-	${CMAKE_SOURCE_DIR}/src/implementations)
++	)
+ 
+ # Define the library
+ add_library ("gldi" SHARED ${core_lib_SRCS})
