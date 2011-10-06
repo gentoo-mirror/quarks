@@ -1,0 +1,23 @@
+--- ../../../../portage/x11-drivers/nvidia-drivers/nvidia-drivers-285.03.ebuild	2011-09-13 08:22:54.000000000 -0700
++++ nvidia-drivers-285.03.ebuild	2011-09-28 19:09:57.144454056 -0700
+@@ -19,7 +19,7 @@
+ LICENSE="NVIDIA"
+ SLOT="0"
+ KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
+-IUSE="acpi custom-cflags gtk multilib kernel_linux"
++IUSE="acpi custom-cflags gtk multilib kernel_linux hardened"
+ RESTRICT="strip"
+ EMULTILIB_PKG="true"
+ 
+@@ -288,6 +288,11 @@
+ 		# If greater than 2.6.5 use M= instead of SUBDIR=
+ 		convert_to_m "${NV_SRC}"/Makefile.kbuild
+ 	fi
++
++	if use hardened; then
++	    epatch "${FILESDIR}"/nvidia-drivers-275.19-pax-const.patch
++	    # epatch "${FILESDIR}"/nvidia-drivers-285.03-pax-usercopy.patch
++	fi
+ }
+ 
+ src_compile() {
