@@ -19,7 +19,7 @@ SRC_URI="x86? ( ftp://download.nvidia.com/XFree86/Linux-x86/${PV}/${X86_NV_PACKA
 LICENSE="NVIDIA"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
-IUSE="acpi custom-cflags gtk multilib kernel_linux hardened"
+IUSE="acpi custom-cflags gtk multilib kernel_linux pax_kernel"
 RESTRICT="strip"
 EMULTILIB_PKG="true"
 
@@ -289,7 +289,7 @@ src_prepare() {
 		convert_to_m "${NV_SRC}"/Makefile.kbuild
 	fi
 
-	if use hardened; then
+	if use pax_kernel; then
 	    epatch "${FILESDIR}"/nvidia-drivers-275.19-pax-const.patch
 	    # epatch "${FILESDIR}"/nvidia-drivers-285.03-pax-usercopy.patch
 	fi
