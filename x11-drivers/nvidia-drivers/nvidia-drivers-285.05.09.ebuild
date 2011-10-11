@@ -290,8 +290,8 @@ src_prepare() {
 	fi
 
 	if use pax_kernel; then
-	    epatch "${FILESDIR}"/nvidia-drivers-275.19-pax-const.patch
-	    # epatch "${FILESDIR}"/nvidia-drivers-285.03-pax-usercopy.patch
+	    epatch "${FILESDIR}"/nvidia-drivers-pax-const.patch
+	    epatch "${FILESDIR}"/nvidia-drivers-pax-usercopy.patch
 	fi
 }
 
