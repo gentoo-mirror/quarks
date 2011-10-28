@@ -53,6 +53,19 @@ bootstrap() {
 
     STAGE_TARBALL=${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
     PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
+
+    [ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
+    [ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
+
+    cd ${ROOT_FS}
+    if [ ! -d "usr" ] ; then
+        wget "${STAGE_TARBALL}" || die "Getting stage file from ${STAGE_TARBALL} failed"
+        tar jxpf stage3*.bz2 || die "Extracting stage file failed"
+    fi
+    if [ ! -d "usr/portage" ] ; then
+        wget "${PORTAGE_SNAPSHOT}" || die "Getting portage snapshot ${PORTAGE_SNAPSHOT} failed"
+        tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
+    fi
 }
 
 
