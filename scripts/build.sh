@@ -8,12 +8,36 @@
 
 #===============================================================================
 GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
+LOCAL_CACHE=/var/tmp
 
 set -x
 
 die() {
   echo $@
   exit 1
+}
+
+fetch_file() {
+    local URL=$1
+    local DIGESTS=$2
+    
+    FILE_NAME=$(basename ${URL})
+    # Check local cache
+    if [ -f ${LOCAL_CACHE}/${FILE_NAME} ]; then
+        # DIGISTS available ?
+        if [ -n ${DIGESTS} ]; then
+            MD5=$(curl -s ${DIGESTS} | grep -o -E -e "^[0-9a-f]{32}\s*${FILE_NAME}$" | awk '{print $1}') 
+            if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
+                cp ${LOCAL_CACHE}/${FILE_NAME} .
+                return
+            fi
+        else
+            cp ${LOCAL_CACHE}/${FILE_NAME} .
+            return
+        fi
+    fi
+    wget -nc ${URL} || die "Cannot download ${URL}!" 
+    cp ${FILE_NAME} ${LOCAL_CACHE}
 }
 
 # bootstrap ROOT_FS PROFILE ARCH
@@ -59,12 +83,14 @@ bootstrap() {
 
     cd ${ROOT_FS}
     if [ ! -d "usr" ] ; then
-        wget "${STAGE_TARBALL}" || die "Getting stage file from ${STAGE_TARBALL} failed"
+        fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
         tar jxpf stage3*.bz2 || die "Extracting stage file failed"
+        rm -f stage3*.bz2
     fi
     if [ ! -d "usr/portage" ] ; then
-        wget "${PORTAGE_SNAPSHOT}" || die "Getting portage snapshot ${PORTAGE_SNAPSHOT} failed"
+        fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
         tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
+        rm -f portage-latest.tar.bz2
     fi
 }
 
@@ -101,4 +127,4 @@ ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="server"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
-bootstrap /mnt/gentoo ${PROFILE} ${ARCH}
+bootstrap /opt/gentoo ${PROFILE} ${ARCH}
