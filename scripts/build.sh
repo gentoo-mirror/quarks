@@ -17,28 +17,41 @@ die() {
   exit 1
 }
 
+
 fetch_file() {
     local URL=$1
-    local DIGESTS=$2
+    local DIGEST=$2
     
     FILE_NAME=$(basename ${URL})
-    # Check local cache
+    MD5=$(curl -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32}\s*${FILE_NAME}$" | awk '{print $1}')
+
+    if [ -z ${MD5} ]; then
+        die "Unable to get checksum for ${FILE_NAME}, abort"
+    fi
+
+    # Do we have local copy
     if [ -f ${LOCAL_CACHE}/${FILE_NAME} ]; then
-        # DIGISTS available ?
-        if [ -n ${DIGESTS} ]; then
-            MD5=$(curl -s ${DIGESTS} | grep -o -E -e "^[0-9a-f]{32}\s*${FILE_NAME}$" | awk '{print $1}') 
-            if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
-                cp ${LOCAL_CACHE}/${FILE_NAME} .
-                return
-            fi
-        else
+        # if we have local, correct copy use it
+        if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
             cp ${LOCAL_CACHE}/${FILE_NAME} .
-            return
+            return 
+        else
+            echo "Invalid checksum for ${LOCAL_CACHE}/${FILE_NAME}, downloading new copy..."
         fi
     fi
+
     wget -nc ${URL} || die "Cannot download ${URL}!" 
-    cp ${FILE_NAME} ${LOCAL_CACHE}
+    if [ $(md5sum ${FILE_NAME} | awk '{print $1}') != ${MD5} ]; then
+        die "Invalid checksum for ${FILE_NAME}!"
+    fi
+
+    # Check if local cache is usable
+    if [ -d ${LOCAL_CACHE} ] && [ -w ${LOCAL_CACHE} ]; then
+        cp ${FILE_NAME} ${LOCAL_CACHE}
+        echo "Stored ${FILE_NAME} in local cache."
+    fi
 }
+
 
 # bootstrap ROOT_FS PROFILE ARCH
 bootstrap() {
