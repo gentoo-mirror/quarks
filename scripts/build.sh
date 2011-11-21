@@ -9,12 +9,14 @@
 #===============================================================================
 GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
 LOCAL_CACHE=/var/tmp
+IMAGE_ROOT=/opt/gentoo
 
+set -o nounset
 set -x
 
 die() {
-  echo $@
-  exit 1
+    echo $@
+    exit 1
 }
 
 
@@ -94,12 +96,16 @@ bootstrap() {
     [ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
     [ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
 
+    # install stage 3
     cd ${ROOT_FS}
     if [ ! -d "usr" ] ; then
         fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
         tar jxpf stage3*.bz2 || die "Extracting stage file failed"
         rm -f stage3*.bz2
     fi
+ 
+    # TODO - bind ro mount local portage tree 
+    # install latest portage snapshot
     if [ ! -d "usr/portage" ] ; then
         fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
         tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
@@ -108,6 +114,35 @@ bootstrap() {
 }
 
 
+# setup_chroot ROOT_FS
+setup_chroot() {
+    local ROOT_FS=$1
+
+    # resolve.conf
+    cp -L /etc/resolv.conf ${ROOT_FS}/etc/resolv.conf || die "Can't copy resolv.conf"
+
+    # Remount pseudo filesystems
+    mount --bind /dev ${ROOT_FS}/dev || die "Error mounting /dev"
+    mount --bind /sys ${ROOT_FS}/sys || die "Error mounting /sys"
+    mount --bind /proc ${ROOT_FS}/proc || die "Error mounting /proc"
+
+    # Compile own kernel later
+    # boot + kernel + lib/modules
+
+    # make.conf
+    # etc/portage/*
+
+}
+
+
+# Clean up host
+cleanup() {
+    local ROOT_FS=$1
+    umount ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
+}
+
+
+# print usage
 usage() {
 cat << EOF
 Usage: $0 [options]
@@ -122,6 +157,12 @@ OPTIONS:
 -v Verbose
 EOF
 }
+
+
+# Do some sanity checks first
+if [ "$(id -u)" != "0" ]; then
+    die "Sorry, but we need root permissions!"
+fi
 
 while getopts ":a:p:t:vh" OPTIONS; do
     case $OPTIONS in
@@ -140,4 +181,9 @@ ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="server"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
-bootstrap /opt/gentoo ${PROFILE} ${ARCH}
+bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
+
+# From here make sure we don't leave stuff around
+trap "cleanup ${IMAGE_ROOT}" INT TERM EXIT
+
+setup_chroot ${IMAGE_ROOT}
