@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-285.05.09.ebuild,v 1.1 2011/10/04 15:04:55 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-290.06.ebuild,v 1.1 2011/11/04 18:11:42 cardoe Exp $
 
 EAPI="2"
 
@@ -337,21 +337,30 @@ src_install() {
 	# NVIDIA kernel <-> userspace driver config lib
 	dolib.so ${NV_LIB}/libnvidia-cfg.so.${NV_SOVER} || \
 		die "failed to install libnvidia-cfg"
-	dosym /usr/$(get_libdir)/libnvidia-cfg.so.${NV_SOVER} \
+	dosym libnvidia-cfg.so.${NV_SOVER} \
+		/usr/$(get_libdir)/libnvidia-cfg.so.1 || \
+		die "failed to create libnvidia-cfg.so symlink"
+	dosym libnvidia-cfg.so.1 \
 		/usr/$(get_libdir)/libnvidia-cfg.so || \
 		die "failed to create libnvidia-cfg.so symlink"
 
 	# NVIDIA monitoring library
 	dolib.so ${NV_LIB}/libnvidia-ml.so.${NV_SOVER} || \
 		die "failed to install libnvidia-ml"
-	dosym /usr/$(get_libdir)/libnvidia-ml.so.${NV_SOVER} \
+	dosym libnvidia-ml.so.${NV_SOVER} \
+		/usr/$(get_libdir)/libnvidia-ml.so.1 || \
+		die "failed to create libnvidia-ml.so symlink"
+	dosym libnvidia-ml.so.1 \
 		/usr/$(get_libdir)/libnvidia-ml.so || \
 		die "failed to create libnvidia-ml.so symlink"
 
 	# NVIDIA video decode <-> CUDA
 	dolib.so ${NV_LIB}/libnvcuvid.so.${NV_SOVER} || \
 		die "failed to install libnvcuvid.so"
-	dosym /usr/$(get_libdir)/libnvcuvid.so.${NV_SOVER} \
+	dosym libnvcuvid.so.${NV_SOVER} \
+		/usr/$(get_libdir)/libnvcuvid.so.1 || \
+		die "failed to create libnvcuvid.so symlink"
+	dosym libnvcuvid.so.1 \
 		/usr/$(get_libdir)/libnvcuvid.so || \
 		die "failed to create libnvcuvid.so symlink"
 
@@ -363,7 +372,7 @@ src_install() {
 	insinto /usr/$(get_libdir)/opengl/nvidia/extensions
 	doins ${NV_X11_EXT}/libglx.so.${NV_SOVER} || \
 		die "failed to install libglx.so"
-	dosym /usr/$(get_libdir)/opengl/nvidia/extensions/libglx.so.${NV_SOVER} \
+	dosym libglx.so.${NV_SOVER} \
 		/usr/$(get_libdir)/opengl/nvidia/extensions/libglx.so || \
 		die "failed to create libglx.so symlink"
 
@@ -372,8 +381,14 @@ src_install() {
 		die "failed to install libXvMCNVIDIA.so"
 	dolib.so ${NV_X11}/libXvMCNVIDIA.so.${NV_SOVER} || \
 		die "failed to install libXvMCNVIDIA.so"
-	dosym libXvMCNVIDIA.so.${NV_SOVER} /usr/$(get_libdir)/libXvMCNVIDIA.so || \
+	dosym libXvMCNVIDIA.so.${NV_SOVER} \
+		/usr/$(get_libdir)/libXvMCNVIDIA.so.1 || \
 		die "failed to create libXvMCNVIDIA.so symlink"
+	dosym libXvMCNVIDIA.so.1 /usr/$(get_libdir)/libXvMCNVIDIA.so || \
+		die "failed to create libXvMCNVIDIA.so symlink"
+	dosym libXvMCNVIDIA.so.${NV_SOVER} \
+		/usr/$(get_libdir)/libXvMCNVIDIA_dynamic.so.1 || \
+		die "failed to create libXvMCNVIDIA_dynamic.so symlink"
 
 	# OpenCL ICD for NVIDIA
 	if use kernel_linux; then
