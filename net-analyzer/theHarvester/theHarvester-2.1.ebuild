@@ -4,7 +4,7 @@
 
 SUPPORT_PYTHON_ABIS="1"
 
-inherit python
+inherit eutils python
 
 DESCRIPTION="The Harvester is a tool designed to collect email accounts of the target domain"
 HOMEPAGE="http://www.edge-security.com/theHarvester.php"
@@ -25,6 +25,8 @@ RESTRICT_PYTHON_ABIS="3.*"
 S="${WORKDIR}"/"${PN}-ng-blackhat"
 
 src_prepare() {
+    epatch "${FILESDIR}"/dns-names_path.patch
+
 	python_convert_shebangs 2 theHarvester.py;
 }
 
@@ -32,7 +34,8 @@ src_install() {
 	installation() {
 		insinto $(python_get_sitedir)/${PN}
 		doins myparser.py
-		doins theHarvester.py
+		exeinto $(python_get_sitedir)/${PN}
+		doexe theHarvester.py
 		insinto $(python_get_sitedir)/${PN}/discovery
 		doins discovery/*.py
 		insinto $(python_get_sitedir)/${PN}/discovery/DNS
@@ -41,13 +44,14 @@ src_install() {
 		doins discovery/shodan/*.py
 		insinto $(python_get_sitedir)/${PN}/lib
 		doins lib/*.py
+
+        dosym $(python_get_sitedir)/${PN}/theHarvester.py /usr/bin/theHarvester.py
 	}
 
     python_execute_function installation
-    dobin theHarvester.py
     insinto /usr/share/"${PN}"
     doins dns-names.txt
-    doins discovery/nameservers.txt
+    # doins discovery/nameservers.txt
 }
 
 pkg_postinst() {
