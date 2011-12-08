@@ -2,6 +2,8 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+# based on pentoo.ch ebuilds - quark <it@startux.de>
+
 EAPI="2"
 
 inherit eutils
