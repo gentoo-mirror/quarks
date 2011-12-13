@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE repositories SYSTEM "/dtd/repositories.dtd">
+<repositories xmlns="" version="1.0">
+<repo quality="experimental" status="official">
+    <name>quarks</name>
+    <description>Quarks's overlay; needful things around Gentoo Hardened, Security and Penetration Testing</description>
+    <homepage>http://www.startux.de</homepage>
+    <owner>
+        <email>it@startux.de</email>
+        <name>Stefan Reimer</name>
+    </owner>
+    <source type="git">git://www.startux.de/quarks.git</source>
+    <source type="git">http://www.startux.de/git/quarks.git</source>
+    <feed>http://www.startux.de/gitweb/quarks.git/rss</feed>
+    <irc></irc>
+</repo>
+</repositories>
