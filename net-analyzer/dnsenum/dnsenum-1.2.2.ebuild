@@ -25,7 +25,7 @@ src_prepare() {
 
 src_install () {
 	dodoc README.txt
-	newsbin ${PN}.pl ${PN}
+	newbin ${PN}.pl ${PN}
 
     insinto /usr/share/"${PN}"
     doins dns.txt
