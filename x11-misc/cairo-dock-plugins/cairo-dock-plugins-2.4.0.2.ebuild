@@ -51,6 +51,10 @@ DEPEND="${RDEPEND}
 
 S="${WORKDIR}/${PN}-${MY_PV}"
 
+src_prepare() {
+	epatch "${FILESDIR}/python_sandbox.patch" || die
+}
+
 pkg_setup() {
 	if use gio; then
 		if ! use gmenu; then

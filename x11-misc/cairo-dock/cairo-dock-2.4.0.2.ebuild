@@ -26,7 +26,7 @@ RDEPEND="
 	dev-libs/glib:2
 	dev-libs/libxml2:2
 	gnome-base/librsvg:2
-    net-misc/curl	
+	net-misc/curl	
 	sys-apps/dbus
 	x11-libs/cairo
 	x11-libs/gtk+:2
