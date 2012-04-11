@@ -9,10 +9,13 @@
 #===============================================================================
 GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
 LOCAL_CACHE=/var/tmp
-IMAGE_ROOT=/opt/gentoo
+IMAGE_ROOT=/mnt/gentoo
+
+# Import certain values from host config
+_PORTDIR=$(. /etc/make.conf && echo $PORTDIR)
+PORTDIR=${_PORTDIR:-/usr/portage}
 
 set -o nounset
-set -x
 
 die() {
     echo $@
@@ -91,32 +94,40 @@ bootstrap() {
     fi
 
     STAGE_TARBALL=${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
-    PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
 
     [ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
     [ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
 
     # install stage 3
     cd ${ROOT_FS}
-    if [ ! -d "usr" ] ; then
-        fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
-        tar jxpf stage3*.bz2 || die "Extracting stage file failed"
-        rm -f stage3*.bz2
+    if [ -d "usr" ] ; then
+        echo "There seems to be already files in ${ROOT_FS} !"
+        echo "Press Ctrl+c to abort..."
+	read
     fi
+    fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
+    tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage file failed"
+    rm -f $(basename ${STAGE_TARBALL})
  
-    # TODO - bind ro mount local portage tree 
-    # install latest portage snapshot
-    if [ ! -d "usr/portage" ] ; then
-        fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
-        tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
-        rm -f portage-latest.tar.bz2
-    fi
 }
 
 
 # setup_chroot ROOT_FS
 setup_chroot() {
     local ROOT_FS=$1
+
+    PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
+    if [ ${BIND_PORTAGE} = 1 ]; then
+        mkdir -p usr/portage
+	mount --bind ${PORTDIR} ${ROOT_FS}/usr/portage || die "Error mounting ${PORTDIR}"
+    else
+        # install latest portage snapshot
+        if [ ! -d "usr/portage" ] ; then
+            fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
+            tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
+            rm -f portage-latest.tar.bz2
+        fi
+    fi
 
     # resolve.conf
     cp -L /etc/resolv.conf ${ROOT_FS}/etc/resolv.conf || die "Can't copy resolv.conf"
@@ -132,6 +143,8 @@ setup_chroot() {
     # make.conf
     # etc/portage/*
 
+    echo "Done :D ... take a look around, any key to end"
+    read
 }
 
 
@@ -139,6 +152,10 @@ setup_chroot() {
 cleanup() {
     local ROOT_FS=$1
     umount ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
+    
+    if [ ${BIND_PORTAGE} = 1 ]; then
+        umount ${ROOT_FS}/usr/portage
+    fi
 }
 
 
@@ -154,6 +171,9 @@ OPTIONS:
 -a arch, either i686 or x86_64, defaults to uname -m
 -p profile, either hardened or hardened-no-multilib or server(default)
 -t The timezone to use, default to GMT
+-r chroot location, default /mnt/gentoo
+-c local cache, default /var/tmp
+-b bind mount host portage tree instead of installing portage inside chroot 
 -v Verbose
 EOF
 }
@@ -161,15 +181,20 @@ EOF
 
 # Do some sanity checks first
 if [ "$(id -u)" != "0" ]; then
-    die "Sorry, but we need root permissions!"
+    die "Sorry, but we need root permissions to create DEVICE nodes etc.!"
 fi
 
-while getopts ":a:p:t:vh" OPTIONS; do
+VERBOSE=0
+BIND_PORTAGE=0
+while getopts ":a:p:t:r:c:bvh" OPTIONS; do
     case $OPTIONS in
         a ) ARCH=$OPTARG;;
         p ) PROFILE=$OPTARG;;
         t ) TIMEZONE=$OPTARG;;
         v ) VERBOSE=1;;
+        b ) BIND_PORTAGE=1;;
+        r ) IMAGE_ROOT=$OPTARG;;
+        c ) LOCAL_CACHE=$OPTARG;;
         ? )
             usage
             exit
@@ -180,6 +205,10 @@ done
 ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="server"}
 TIMEZONE=${TIMEZONE-"GMT"}
+
+if [ ${VERBOSE} = 1 ]; then
+    set -x
+fi
 
 bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
 
