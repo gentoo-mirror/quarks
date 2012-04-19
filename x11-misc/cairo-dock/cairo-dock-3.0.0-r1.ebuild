@@ -48,6 +48,7 @@ S="${WORKDIR}/${PN}-${PV}"
 
 src_prepare() {
 	epatch "${FILESDIR}/fix_lib6464.patch" 
+	epatch "${FILESDIR}/glib-include.patch" 
 }
 
 pkg_postinst() {
