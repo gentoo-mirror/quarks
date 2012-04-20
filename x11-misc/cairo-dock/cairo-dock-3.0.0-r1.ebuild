@@ -15,7 +15,7 @@ SRC_URI="http://launchpad.net/${MY_PN}/${MM_PV}/${PV}/+download/${PN}-${PV}.tar.
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~x86"
 IUSE="crypt xcomposite gtk3"
 
 RDEPEND="
