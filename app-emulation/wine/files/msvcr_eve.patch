@@ -1,0 +1,41 @@
+diff --git a/dlls/msvcr100/msvcr100.spec b/dlls/msvcr100/msvcr100.spec
+index 99d6c3d..3e57e47 100644
+--- a/dlls/msvcr100/msvcr100.spec
++++ b/dlls/msvcr100/msvcr100.spec
+@@ -459,7 +459,7 @@
+ @ cdecl __p__wenviron() msvcrt.__p__wenviron
+ @ cdecl __p__wpgmptr() msvcrt.__p__wpgmptr
+ @ cdecl __pctype_func() msvcrt.__pctype_func
+-### extern __pioinfo #don't forward to msvcrt.__pioinfo, it has different size
++@ extern __pioinfo msvcrt.__pioinfo
+ @ stub __pwctype_func
+ @ cdecl __pxcptinfoptrs() msvcrt.__pxcptinfoptrs
+ @ stub __report_gsfailure
+diff --git a/dlls/msvcr80/msvcr80.spec b/dlls/msvcr80/msvcr80.spec
+index ca284bf..f41b0da 100644
+--- a/dlls/msvcr80/msvcr80.spec
++++ b/dlls/msvcr80/msvcr80.spec
+@@ -283,7 +283,7 @@
+ @ cdecl __p__winver() msvcrt.__p__winver
+ @ cdecl __p__wpgmptr() msvcrt.__p__wpgmptr
+ @ cdecl __pctype_func() msvcrt.__pctype_func
+-### extern __pioinfo #don't forward to msvcrt.__pioinfo, it has different size
++@ extern __pioinfo msvcrt.__pioinfo
+ @ stub __pwctype_func
+ @ cdecl __pxcptinfoptrs() msvcrt.__pxcptinfoptrs
+ @ stub __report_gsfailure
+diff --git a/dlls/msvcr90/msvcr90.spec b/dlls/msvcr90/msvcr90.spec
+index 2ede2cc..2bba469 100644
+--- a/dlls/msvcr90/msvcr90.spec
++++ b/dlls/msvcr90/msvcr90.spec
+@@ -275,7 +275,7 @@
+ @ cdecl __p__wenviron() msvcrt.__p__wenviron
+ @ cdecl __p__wpgmptr() msvcrt.__p__wpgmptr
+ @ cdecl __pctype_func() msvcrt.__pctype_func
+-### extern __pioinfo #don't forward to msvcrt.__pioinfo, it has different size
++@ extern __pioinfo msvcrt.__pioinfo
+ @ stub __pwctype_func
+ @ cdecl __pxcptinfoptrs() msvcrt.__pxcptinfoptrs
+ @ stub __report_gsfailure
+-- 
+1.7.9.5

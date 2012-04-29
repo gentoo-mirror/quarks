@@ -1,8 +1,179 @@
+From d10e1f620b180d2bf480cc21f5d58a1c915a1489 Mon Sep 17 00:00:00 2001
+From: Stefan Reimer <it@startux.de>
+Date: Sun, 29 Apr 2012 14:10:12 -0700
+Subject: [PATCH] Pulseaudio V17
+
+---
+ configure                             |   97 +-
+ configure.ac                          |   31 +-
+ dlls/mmdevapi/main.c                  |    2 +-
+ dlls/winepulse.drv/Makefile.in        |    9 +
+ dlls/winepulse.drv/mmdevdrv.c         | 3101 +++++++++++++++++++++++++++++++++
+ dlls/winepulse.drv/winepulse.drv.spec |    5 +
+ 6 files changed, 3240 insertions(+), 5 deletions(-)
+ create mode 100644 dlls/winepulse.drv/Makefile.in
+ create mode 100644 dlls/winepulse.drv/mmdevdrv.c
+ create mode 100644 dlls/winepulse.drv/winepulse.drv.spec
+
+diff --git a/configure b/configure
+index 46827c1..a9f0b1e 100755
+--- a/configure
++++ b/configure
+@@ -629,6 +629,8 @@ OSS4INCL
+ ALSALIBS
+ GSTREAMER_INCL
+ GSTREAMER_LIBS
++PULSEINCL
++PULSELIBS
+ LIBGETTEXTPO
+ ZLIB
+ FREETYPEINCL
+@@ -805,6 +807,7 @@ with_openssl
+ with_oss
+ with_png
+ with_pthread
++with_pulse
+ with_sane
+ with_tiff
+ with_v4l
+@@ -1495,6 +1498,7 @@ Optional Packages:
+   --without-oss           do not use the OSS sound support
+   --without-png           do not use PNG
+   --without-pthread       do not use the pthread library
++  --without-pulse         do not use PulseAudio sound support
+   --without-sane          do not use SANE (scanner support)
+   --without-tiff          do not use TIFF
+   --without-v4l           do not use v4l1 (v4l support)
+@@ -2679,6 +2683,12 @@ if test "${with_pthread+set}" = set; then :
+ fi
+ 
+ 
++# Check whether --with-pulse was given.
++if test "${with_pulse+set}" = set; then :
++  withval=$with_pulse;
++fi
++
++
+ # Check whether --with-sane was given.
+ if test "${with_sane+set}" = set; then :
+   withval=$with_sane;
+@@ -10613,6 +10623,87 @@ esac
+ fi
+ fi
+ 
++PULSELIBS=""
++
++PULSEINCL=""
++
++if test "x$with_pulse" != "xno";
++then
++    ac_save_CPPFLAGS="$CPPFLAGS"
++    if test "$PKG_CONFIG" != "false";
++    then
++        ac_pulse_libs="`$PKG_CONFIG --libs libpulse 2>/dev/null`"
++        ac_pulse_cflags="`$PKG_CONFIG --cflags-only-I libpulse 2>/dev/null`"
++
++        CPPFLAGS="$CPPFLAGS $ac_pulse_cflags"
++        for ac_header in pulse/pulseaudio.h
++do :
++  ac_fn_c_check_header_mongrel "$LINENO" "pulse/pulseaudio.h" "ac_cv_header_pulse_pulseaudio_h" "$ac_includes_default"
++if test "x$ac_cv_header_pulse_pulseaudio_h" = xyes; then :
++  cat >>confdefs.h <<_ACEOF
++#define HAVE_PULSE_PULSEAUDIO_H 1
++_ACEOF
++ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pa_stream_is_corked in -lpulse" >&5
++$as_echo_n "checking for pa_stream_is_corked in -lpulse... " >&6; }
++if ${ac_cv_lib_pulse_pa_stream_is_corked+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  ac_check_lib_save_LIBS=$LIBS
++LIBS="-lpulse $ac_pulse_libs $LIBS"
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++/* Override any GCC internal prototype to avoid an error.
++   Use char because int might match the return type of a GCC
++   builtin and then its argument prototype would still apply.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++char pa_stream_is_corked ();
++int
++main ()
++{
++return pa_stream_is_corked ();
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  ac_cv_lib_pulse_pa_stream_is_corked=yes
++else
++  ac_cv_lib_pulse_pa_stream_is_corked=no
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++LIBS=$ac_check_lib_save_LIBS
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pulse_pa_stream_is_corked" >&5
++$as_echo "$ac_cv_lib_pulse_pa_stream_is_corked" >&6; }
++if test "x$ac_cv_lib_pulse_pa_stream_is_corked" = xyes; then :
++
++$as_echo "#define HAVE_PULSEAUDIO 1" >>confdefs.h
++
++                 PULSELIBS="$ac_pulse_libs"
++                 PULSEINCL="$ac_pulse_cflags"
++fi
++
++
++fi
++
++done
++
++    fi
++    CPPFLAGS="$ac_save_CPPFLAGS"
++fi
++if test "$ac_cv_lib_pulse_pa_stream_is_corked" != "yes"; then :
++  case "x$with_pulse" in
++  x)   as_fn_append wine_warnings "|libpulse ${notice_platform}development files not found or too old, Pulse won't be supported." ;;
++  xno) ;;
++  *)   as_fn_error $? "libpulse ${notice_platform}development files not found or too old, Pulse won't be supported.
++This is an error since --with-pulse was requested." "$LINENO" 5 ;;
++esac
++fi
++
+ if test "x$with_gstreamer" != "xno"
+ then
+     ac_save_CPPFLAGS="$CPPFLAGS"
+@@ -11872,12 +11963,13 @@ fi
+ 
+ test -n "$ALSALIBS" || enable_winealsa_drv=${enable_winealsa_drv:-no}
+ test -n "$COREAUDIO" || enable_winecoreaudio_drv=${enable_winecoreaudio_drv:-no}
++test -n "$PULSELIBS" || enable_winepulse_drv=${enable_winepulse_drv:-no}
+ test "x$ac_cv_member_oss_sysinfo_numaudioengines" = xyes || enable_wineoss_drv=${enable_wineoss_drv:-no}
+ test "$ac_cv_header_linux_joystick_h" = "yes" || enable_winejoystick_drv=${enable_winejoystick_drv:-no}
+ 
+-if test "x$ALSALIBS$COREAUDIO" = "x" -a \
++if test "x$ALSALIBS$COREAUDIO$PULSELIBS" = "x" -a \
+         "x$ac_cv_member_oss_sysinfo_numaudioengines" != xyes -a \
+-        "x$with_alsa$with_coreaudio$with_oss" != xnonono
++        "x$with_alsa$with_coreaudio$with_oss$with_pulse" != xnononono
+ then
+     as_fn_append wine_warnings "|No sound system was found. Windows applications will be silent."
+ fi
+@@ -15402,6 +15494,7 @@ wine_fn_config_dll winemp3.acm enable_winemp3_acm
+ wine_fn_config_dll wineoss.drv enable_wineoss_drv
+ wine_fn_config_dll wineps.drv enable_wineps_drv install-lib,po
+ wine_fn_config_dll wineps16.drv16 enable_win16
++wine_fn_config_dll winepulse.drv enable_winepulse_drv
+ wine_fn_config_dll wineqtdecoder enable_wineqtdecoder
+ wine_fn_config_dll winequartz.drv enable_winequartz_drv
+ wine_fn_config_dll winex11.drv enable_winex11_drv
 diff --git a/configure.ac b/configure.ac
-index 3fd320e..1c7281a 100644
+index efc03af..d9bd62b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -75,6 +75,7 @@ AC_ARG_WITH(png,       AS_HELP_STRING([--without-png],[do not use PNG]),
+@@ -74,6 +74,7 @@ AC_ARG_WITH(png,       AS_HELP_STRING([--without-png],[do not use PNG]),
              [if test "x$withval" = "xno"; then ac_cv_header_png_h=no; fi])
  AC_ARG_WITH(pthread,   AS_HELP_STRING([--without-pthread],[do not use the pthread library]),
              [if test "x$withval" = "xno"; then ac_cv_header_pthread_h=no; fi])
@@ -10,7 +181,7 @@ index 3fd320e..1c7281a 100644
  AC_ARG_WITH(sane,      AS_HELP_STRING([--without-sane],[do not use SANE (scanner support)]))
  AC_ARG_WITH(tiff,       AS_HELP_STRING([--without-tiff],[do not use TIFF]),
              [if test "x$withval" = "xno"; then ac_cv_header_tiffio_h=no; fi])
-@@ -1464,6 +1465,30 @@ then
+@@ -1474,6 +1475,30 @@ then
            [GetText ${notice_platform}development files not found (or too old), po files can't be rebuilt.])
  fi
  
@@ -41,7 +212,7 @@ index 3fd320e..1c7281a 100644
  dnl **** Check for gstreamer ****
  if test "x$with_gstreamer" != "xno"
  then
-@@ -1670,13 +1695,14 @@ WINE_CHECK_SONAME(odbc,SQLConnect,,[AC_DEFINE_UNQUOTED(SONAME_LIBODBC,["libodbc.
+@@ -1680,13 +1705,14 @@ WINE_CHECK_SONAME(odbc,SQLConnect,,[AC_DEFINE_UNQUOTED(SONAME_LIBODBC,["libodbc.
  dnl **** Disable unsupported winmm drivers ****
  test -n "$ALSALIBS" || enable_winealsa_drv=${enable_winealsa_drv:-no}
  test -n "$COREAUDIO" || enable_winecoreaudio_drv=${enable_winecoreaudio_drv:-no}
@@ -58,7 +229,7 @@ index 3fd320e..1c7281a 100644
  then
      WINE_WARNING([No sound system was found. Windows applications will be silent.])
  fi
-@@ -2888,6 +2914,7 @@ WINE_CONFIG_DLL(winemp3.acm)
+@@ -2908,6 +2934,7 @@ WINE_CONFIG_DLL(winemp3.acm)
  WINE_CONFIG_DLL(wineoss.drv)
  WINE_CONFIG_DLL(wineps.drv,,[install-lib,po])
  WINE_CONFIG_DLL(wineps16.drv16,enable_win16)
@@ -96,10 +267,10 @@ index 0000000..0f595f1
 +@MAKE_DLL_RULES@
 diff --git a/dlls/winepulse.drv/mmdevdrv.c b/dlls/winepulse.drv/mmdevdrv.c
 new file mode 100644
-index 0000000..50dcd4a
+index 0000000..5cc460f
 --- /dev/null
 +++ b/dlls/winepulse.drv/mmdevdrv.c
-@@ -0,0 +1,3018 @@
+@@ -0,0 +1,3101 @@
 +/*
 + * Copyright 2011-2012 Maarten Lankhorst
 + * Copyright 2010-2011 Maarten Lankhorst for CodeWeavers
@@ -161,6 +332,7 @@ index 0000000..50dcd4a
 +#define NULL_PTR_ERR MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, RPC_X_NULL_REF_POINTER)
 +
 +WINE_DEFAULT_DEBUG_CHANNEL(pulse);
++WINE_DECLARE_DEBUG_CHANNEL(winediag);
 +
 +static const REFERENCE_TIME MinimumPeriod = 30000;
 +static const REFERENCE_TIME DefaultPeriod = 100000;
@@ -183,6 +355,13 @@ index 0000000..50dcd4a
 +    'W','i','n','e','\\','P','u','l','s','e',0};
 +const WCHAR pulse_streamW[] = { 'S','t','r','e','a','m','V','o','l',0 };
 +
++static GUID pulse_render_guid = 
++{ 0xfd47d9cc, 0x4218, 0x4135, { 0x9c, 0xe2, 0x0c, 0x19, 0x5c, 0x87, 0x40, 0x5b } };
++static GUID pulse_capture_guid =
++{ 0x25da76d0, 0x033c, 0x4235, { 0x90, 0x02, 0x19, 0xf4, 0x88, 0x94, 0xac, 0x6f } };
++
++static HANDLE warn_once;
++
 +BOOL WINAPI DllMain(HINSTANCE dll, DWORD reason, void *reserved)
 +{
 +    if (reason == DLL_PROCESS_ATTACH) {
@@ -201,7 +380,10 @@ index 0000000..50dcd4a
 +        }
 +        if (pulse_ml)
 +            pa_mainloop_quit(pulse_ml, 0);
-+        CloseHandle(pulse_thread);
++        if (pulse_thread)
++            CloseHandle(pulse_thread);
++        if (warn_once)
++            CloseHandle(warn_once);
 +    }
 +    return TRUE;
 +}
@@ -698,10 +880,11 @@ index 0000000..50dcd4a
 +        dst = p->data;
 +        while (rem) {
 +            pa_stream_peek(This->stream, (const void**)&src, &src_len);
-+            assert(src_len && src_len <= bytes);
++            assert(src_len);
 +            assert(This->peek_ofs < src_len);
 +            src += This->peek_ofs;
 +            src_len -= This->peek_ofs;
++            assert(src_len <= bytes);
 +
 +            copy = rem;
 +            if (copy > src_len)
@@ -729,9 +912,10 @@ index 0000000..50dcd4a
 +        while (rem) {
 +            const void *src;
 +            pa_stream_peek(This->stream, &src, &src_len);
-+            assert(src_len && src_len <= bytes);
++            assert(src_len);
 +            assert(This->peek_ofs < src_len);
 +            src_len -= This->peek_ofs;
++            assert(src_len <= bytes);
 +
 +            copy = rem;
 +            if (copy > src_len)
@@ -767,6 +951,13 @@ index 0000000..50dcd4a
 +
 +    if (This->event)
 +        SetEvent(This->event);
++}
++
++static void pulse_stream_state(pa_stream *s, void *user)
++{
++    pa_stream_state_t state = pa_stream_get_state(s);
++    TRACE("Stream state changed to %i\n", state);
++    pthread_cond_signal(&pulse_cond);
 +}
 +
 +static HRESULT pulse_stream_connect(ACImpl *This, UINT32 period_bytes) {
@@ -816,14 +1007,7 @@ index 0000000..50dcd4a
 +    return S_OK;
 +}
 +
-+static void pulse_stream_state(pa_stream *s, void *user)
-+{
-+    pa_stream_state_t state = pa_stream_get_state(s);
-+    TRACE("Stream state changed to %i\n", state);
-+    pthread_cond_signal(&pulse_cond);
-+}
-+
-+HRESULT WINAPI AUDDRV_GetEndpointIDs(EDataFlow flow, WCHAR ***ids, void ***keys,
++HRESULT WINAPI AUDDRV_GetEndpointIDs(EDataFlow flow, const WCHAR ***ids, GUID **keys,
 +        UINT *num, UINT *def_index)
 +{
 +    HRESULT hr = S_OK;
@@ -837,20 +1021,21 @@ index 0000000..50dcd4a
 +    *num = 1;
 +    *def_index = 0;
 +
-+    *ids = HeapAlloc(GetProcessHeap(), 0, sizeof(WCHAR *));
++    *ids = HeapAlloc(GetProcessHeap(), 0, sizeof(**ids));
 +    if (!*ids)
 +        return E_OUTOFMEMORY;
++    (*ids)[0] = defaultW;
 +
-+    (*ids)[0] = HeapAlloc(GetProcessHeap(), 0, sizeof(defaultW));
-+    if (!(*ids)[0]) {
++    *keys = HeapAlloc(GetProcessHeap(), 0, sizeof(**keys));
++    if (!*keys) {
 +        HeapFree(GetProcessHeap(), 0, *ids);
++        *ids = NULL;
 +        return E_OUTOFMEMORY;
 +    }
-+
-+    lstrcpyW((*ids)[0], defaultW);
-+
-+    *keys = HeapAlloc(GetProcessHeap(), 0, sizeof(void *));
-+    (*keys)[0] = NULL;
++    if (flow == eRender)
++        (*keys)[0] = pulse_render_guid;
++    else
++        (*keys)[0] = pulse_capture_guid;
 +
 +    return S_OK;
 +}
@@ -858,21 +1043,40 @@ index 0000000..50dcd4a
 +int WINAPI AUDDRV_GetPriority(void)
 +{
 +    HRESULT hr;
++    if (getenv("WINENOPULSE")) {
++        FIXME_(winediag)("winepulse has been temporarily disabled through the environment\n");
++        return 0;
++    }
 +    pthread_mutex_lock(&pulse_lock);
 +    hr = pulse_connect();
 +    pthread_mutex_unlock(&pulse_lock);
 +    return SUCCEEDED(hr) ? 3 : 0;
 +}
 +
-+HRESULT WINAPI AUDDRV_GetAudioEndpoint(void *key, IMMDevice *dev,
-+        EDataFlow dataflow, IAudioClient **out)
++HRESULT WINAPI AUDDRV_GetAudioEndpoint(GUID *guid, IMMDevice *dev, IAudioClient **out)
 +{
 +    HRESULT hr;
 +    ACImpl *This;
 +    int i;
++    EDataFlow dataflow;
 +
-+    TRACE("%p %p %d %p\n", key, dev, dataflow, out);
-+    if (dataflow != eRender && dataflow != eCapture)
++    /* Give one visible warning per session
++     * Sadly wine has chosen not to accept the winepulse patch, so support ourselves
++     */
++    if (!warn_once && (warn_once = CreateEventA(0, 0, 0, "__winepulse_warn_event")) && GetLastError() != ERROR_ALREADY_EXISTS) {
++        FIXME_(winediag)("Winepulse is not officially supported by the wine project\n");
++        FIXME_(winediag)("For sound related feedback and support, please visit http://ubuntuforums.org/showthread.php?t=1960599\n");
++    } else {
++        WARN_(winediag)("Winepulse is not officially supported by the wine project\n");
++        WARN_(winediag)("For sound related feedback and support, please visit http://ubuntuforums.org/showthread.php?t=1960599\n");
++    }
++
++    TRACE("%s %p %p\n", debugstr_guid(guid), dev, out);
++    if (IsEqualGUID(guid, &pulse_render_guid))
++        dataflow = eRender;
++    else if (IsEqualGUID(guid, &pulse_capture_guid))
++        dataflow = eCapture;
++    else
 +        return E_UNEXPECTED;
 +
 +    *out = NULL;
@@ -1047,7 +1251,6 @@ index 0000000..50dcd4a
 +    return 0;
 +}
 +
-+
 +static void session_init_vols(AudioSession *session, UINT channels)
 +{
 +    if (session->channel_count < channels) {
@@ -1146,6 +1349,8 @@ index 0000000..50dcd4a
 +            This->ss.format = PA_SAMPLE_U8;
 +        else if (fmt->wBitsPerSample == 16)
 +            This->ss.format = PA_SAMPLE_S16LE;
++        else
++            return AUDCLNT_E_UNSUPPORTED_FORMAT;
 +        pa_channel_map_init_auto(&This->map, fmt->nChannels, PA_CHANNEL_MAP_ALSA);
 +        break;
 +    case WAVE_FORMAT_EXTENSIBLE: {
@@ -1182,13 +1387,16 @@ index 0000000..50dcd4a
 +                        This->ss.format = PA_SAMPLE_S24_32LE;
 +                    else if (valid == 32)
 +                        This->ss.format = PA_SAMPLE_S32LE;
-+                default:
 +                    break;
++                default:
++                    return AUDCLNT_E_UNSUPPORTED_FORMAT;
 +            }
 +        }
 +        This->map.channels = fmt->nChannels;
-+        if (!mask)
++        if (!mask || mask == SPEAKER_ALL)
 +            mask = get_channel_mask(fmt->nChannels);
++        else if (mask == ~0U && fmt->nChannels == 1)
++            mask = SPEAKER_FRONT_CENTER;
 +        for (j = 0; j < sizeof(pulse_pos_from_wfx)/sizeof(*pulse_pos_from_wfx) && i < fmt->nChannels; ++j) {
 +            if (mask & (1 << j))
 +                This->map.map[i++] = pulse_pos_from_wfx[j];
@@ -1198,19 +1406,29 @@ index 0000000..50dcd4a
 +        if (mask == SPEAKER_FRONT_CENTER)
 +            This->map.map[0] = PA_CHANNEL_POSITION_MONO;
 +
-+        if ((mask & SPEAKER_ALL) && i < fmt->nChannels) {
-+            This->map.map[i++] = PA_CHANNEL_POSITION_MONO;
-+            FIXME("Is the 'all' channel mapped correctly?\n");
-+        }
-+
 +        if (i < fmt->nChannels || (mask & SPEAKER_RESERVED)) {
 +            This->map.channels = 0;
-+            ERR("Invalid channel mask: %i/%i and %x\n", i, fmt->nChannels, mask);
++            ERR("Invalid channel mask: %i/%i and %x(%x)\n", i, fmt->nChannels, mask, wfe->dwChannelMask);
 +            break;
 +        }
 +        break;
 +        }
-+        default: FIXME("Unhandled tag %x\n", fmt->wFormatTag);
++        case WAVE_FORMAT_ALAW:
++        case WAVE_FORMAT_MULAW:
++            if (fmt->wBitsPerSample != 8) {
++                FIXME("Unsupported bpp %u for LAW\n", fmt->wBitsPerSample);
++                return AUDCLNT_E_UNSUPPORTED_FORMAT;
++            }
++            if (fmt->nChannels != 1 && fmt->nChannels != 2) {
++                FIXME("Unsupported channels %u for LAW\n", fmt->nChannels);
++                return AUDCLNT_E_UNSUPPORTED_FORMAT;
++            }
++            This->ss.format = fmt->wFormatTag == WAVE_FORMAT_MULAW ? PA_SAMPLE_ULAW : PA_SAMPLE_ALAW;
++            pa_channel_map_init_auto(&This->map, fmt->nChannels, PA_CHANNEL_MAP_ALSA);
++            break;
++        default:
++            WARN("Unhandled tag %x\n", fmt->wFormatTag);
++            return AUDCLNT_E_UNSUPPORTED_FORMAT;
 +    }
 +    This->ss.channels = This->map.channels;
 +    if (!pa_channel_map_valid(&This->map) || This->ss.format == PA_SAMPLE_INVALID) {
@@ -1448,15 +1666,55 @@ index 0000000..50dcd4a
 +        return E_INVALIDARG;
 +    if (mode == AUDCLNT_SHAREMODE_EXCLUSIVE)
 +        return This->dataflow == eCapture ? AUDCLNT_E_UNSUPPORTED_FORMAT : AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED;
-+    if (fmt->wFormatTag == WAVE_FORMAT_EXTENSIBLE &&
-+        fmt->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
-+        return E_INVALIDARG;
-+
-+    dump_fmt(fmt);
-+
++    switch (fmt->wFormatTag) {
++    case WAVE_FORMAT_EXTENSIBLE:
++        if (fmt->cbSize < sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX))
++            return E_INVALIDARG;
++        dump_fmt(fmt);
++        break;
++    case WAVE_FORMAT_ALAW:
++    case WAVE_FORMAT_MULAW:
++    case WAVE_FORMAT_IEEE_FLOAT:
++    case WAVE_FORMAT_PCM:
++        dump_fmt(fmt);
++        break;
++    default:
++        dump_fmt(fmt);
++        return AUDCLNT_E_UNSUPPORTED_FORMAT;
++    }
++    if (fmt->nChannels == 0)
++        return AUDCLNT_E_UNSUPPORTED_FORMAT;
 +    closest = clone_format(fmt);
-+    if (!closest)
-+        hr = E_OUTOFMEMORY;
++    if (!closest) {
++        if (out)
++            *out = NULL;
++        return E_OUTOFMEMORY;
++    }
++
++    if (fmt->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
++        UINT32 mask = 0, i, channels = 0;
++        WAVEFORMATEXTENSIBLE *ext = (WAVEFORMATEXTENSIBLE*)closest;
++
++        if ((fmt->nChannels > 1 && ext->dwChannelMask == SPEAKER_ALL) ||
++            (fmt->nChannels == 1 && ext->dwChannelMask == ~0U)) {
++            mask = ext->dwChannelMask;
++            channels = fmt->nChannels;
++        } else if (ext->dwChannelMask) {
++            for (i = 1; !(i & SPEAKER_RESERVED); i <<= 1) {
++                if (i & ext->dwChannelMask) {
++                    mask |= i;
++                    channels++;
++                }
++            }
++            if (channels < fmt->nChannels)
++                mask = get_channel_mask(fmt->nChannels);
++        } else
++            mask = ext->dwChannelMask;
++        if (ext->dwChannelMask != mask) {
++            ext->dwChannelMask = mask;
++            hr = S_FALSE;
++        }
++    }
 +
 +    if (hr == S_OK || !out) {
 +        CoTaskMemFree(closest);
@@ -1708,7 +1966,9 @@ index 0000000..50dcd4a
 +        *ppv = &This->IAudioClock_iface;
 +    } else if (IsEqualIID(riid, &IID_IAudioStreamVolume)) {
 +        *ppv = &This->IAudioStreamVolume_iface;
-+    } else {
++    } else if (IsEqualIID(riid, &IID_IAudioSessionControl) ||
++               IsEqualIID(riid, &IID_IChannelAudioVolume) ||
++               IsEqualIID(riid, &IID_ISimpleAudioVolume)) {
 +        if (!This->session_wrapper) {
 +            This->session_wrapper = AudioSessionWrapper_Create(This);
 +            if (!This->session_wrapper)
@@ -1999,7 +2259,7 @@ index 0000000..50dcd4a
 +    TRACE("(%p)->(%p)\n", This, frames);
 +    if (!frames)
 +        return E_POINTER;
-+    
++
 +    pthread_mutex_lock(&pulse_lock);
 +    ACImpl_GetCapturePad(This, NULL);
 +    p = This->locked_ptr;
@@ -2099,7 +2359,7 @@ index 0000000..50dcd4a
 +        else
 +            *pos += This->pad;
 +    }
-+    
++
 +    /* Make time never go backwards */
 +    if (*pos < This->clock_lastpos)
 +        *pos = This->clock_lastpos;
@@ -2669,7 +2929,7 @@ index 0000000..50dcd4a
 +    IMMDevice *device;
 +} SessionMgr;
 +
-+HRESULT WINAPI AudioSessionManager_QueryInterface(IAudioSessionManager2 *iface,
++static HRESULT WINAPI AudioSessionManager_QueryInterface(IAudioSessionManager2 *iface,
 +        REFIID riid, void **ppv)
 +{
 +    TRACE("(%p)->(%s, %p)\n", iface, debugstr_guid(riid), ppv);
@@ -2696,7 +2956,7 @@ index 0000000..50dcd4a
 +    return CONTAINING_RECORD(iface, SessionMgr, IAudioSessionManager2_iface);
 +}
 +
-+ULONG WINAPI AudioSessionManager_AddRef(IAudioSessionManager2 *iface)
++static ULONG WINAPI AudioSessionManager_AddRef(IAudioSessionManager2 *iface)
 +{
 +    SessionMgr *This = impl_from_IAudioSessionManager2(iface);
 +    ULONG ref;
@@ -2705,7 +2965,7 @@ index 0000000..50dcd4a
 +    return ref;
 +}
 +
-+ULONG WINAPI AudioSessionManager_Release(IAudioSessionManager2 *iface)
++static ULONG WINAPI AudioSessionManager_Release(IAudioSessionManager2 *iface)
 +{
 +    SessionMgr *This = impl_from_IAudioSessionManager2(iface);
 +    ULONG ref;
@@ -2716,7 +2976,7 @@ index 0000000..50dcd4a
 +    return ref;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_GetAudioSessionControl(
++static HRESULT WINAPI AudioSessionManager_GetAudioSessionControl(
 +        IAudioSessionManager2 *iface, const GUID *session_guid, DWORD flags,
 +        IAudioSessionControl **out)
 +{
@@ -2743,7 +3003,7 @@ index 0000000..50dcd4a
 +    return S_OK;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_GetSimpleAudioVolume(
++static HRESULT WINAPI AudioSessionManager_GetSimpleAudioVolume(
 +        IAudioSessionManager2 *iface, const GUID *session_guid, DWORD flags,
 +        ISimpleAudioVolume **out)
 +{
@@ -2770,7 +3030,7 @@ index 0000000..50dcd4a
 +    return S_OK;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_GetSessionEnumerator(
++static HRESULT WINAPI AudioSessionManager_GetSessionEnumerator(
 +        IAudioSessionManager2 *iface, IAudioSessionEnumerator **out)
 +{
 +    SessionMgr *This = impl_from_IAudioSessionManager2(iface);
@@ -2778,7 +3038,7 @@ index 0000000..50dcd4a
 +    return E_NOTIMPL;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_RegisterSessionNotification(
++static HRESULT WINAPI AudioSessionManager_RegisterSessionNotification(
 +        IAudioSessionManager2 *iface, IAudioSessionNotification *notification)
 +{
 +    SessionMgr *This = impl_from_IAudioSessionManager2(iface);
@@ -2786,7 +3046,7 @@ index 0000000..50dcd4a
 +    return E_NOTIMPL;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_UnregisterSessionNotification(
++static HRESULT WINAPI AudioSessionManager_UnregisterSessionNotification(
 +        IAudioSessionManager2 *iface, IAudioSessionNotification *notification)
 +{
 +    SessionMgr *This = impl_from_IAudioSessionManager2(iface);
@@ -2794,7 +3054,7 @@ index 0000000..50dcd4a
 +    return E_NOTIMPL;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_RegisterDuckNotification(
++static HRESULT WINAPI AudioSessionManager_RegisterDuckNotification(
 +        IAudioSessionManager2 *iface, const WCHAR *session_id,
 +        IAudioVolumeDuckNotification *notification)
 +{
@@ -2803,7 +3063,7 @@ index 0000000..50dcd4a
 +    return E_NOTIMPL;
 +}
 +
-+HRESULT WINAPI AudioSessionManager_UnregisterDuckNotification(
++static HRESULT WINAPI AudioSessionManager_UnregisterDuckNotification(
 +        IAudioSessionManager2 *iface,
 +        IAudioVolumeDuckNotification *notification)
 +{
@@ -2825,7 +3085,6 @@ index 0000000..50dcd4a
 +    AudioSessionManager_RegisterDuckNotification,
 +    AudioSessionManager_UnregisterDuckNotification
 +};
-+
 +
 +static HRESULT WINAPI SimpleAudioVolume_QueryInterface(
 +        ISimpleAudioVolume *iface, REFIID riid, void **ppv)
@@ -2941,7 +3200,6 @@ index 0000000..50dcd4a
 +    SimpleAudioVolume_SetMute,
 +    SimpleAudioVolume_GetMute
 +};
-+
 +
 +static HRESULT WINAPI ChannelAudioVolume_QueryInterface(
 +        IChannelAudioVolume *iface, REFIID riid, void **ppv)
@@ -3104,28 +3362,27 @@ index 0000000..50dcd4a
 +HRESULT WINAPI AUDDRV_GetAudioSessionManager(IMMDevice *device,
 +        IAudioSessionManager2 **out)
 +{
-+    SessionMgr *This;
-+
-+    This = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(SessionMgr));
++    SessionMgr *This = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(SessionMgr));
++    *out = NULL;
 +    if (!This)
 +        return E_OUTOFMEMORY;
-+
 +    This->IAudioSessionManager2_iface.lpVtbl = &AudioSessionManager2_Vtbl;
 +    This->device = device;
 +    This->ref = 1;
-+
 +    *out = &This->IAudioSessionManager2_iface;
-+
 +    return S_OK;
 +}
 diff --git a/dlls/winepulse.drv/winepulse.drv.spec b/dlls/winepulse.drv/winepulse.drv.spec
 new file mode 100644
-index 0000000..a089166
+index 0000000..612bf46
 --- /dev/null
 +++ b/dlls/winepulse.drv/winepulse.drv.spec
 @@ -0,0 +1,5 @@
 +# MMDevAPI driver functions
 +@ stdcall -private GetPriority() AUDDRV_GetPriority
 +@ stdcall -private GetEndpointIDs(long ptr ptr ptr ptr) AUDDRV_GetEndpointIDs
-+@ stdcall -private GetAudioEndpoint(ptr ptr long ptr) AUDDRV_GetAudioEndpoint
++@ stdcall -private GetAudioEndpoint(ptr ptr ptr) AUDDRV_GetAudioEndpoint
 +@ stdcall -private GetAudioSessionManager(ptr ptr) AUDDRV_GetAudioSessionManager
+-- 
+1.7.3.4
+

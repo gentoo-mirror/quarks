@@ -125,11 +125,14 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.1.15-winegcc.patch #260726
 	epatch "${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
+	# Pulseaudio
 	epatch "${FILESDIR}"/pulseaudio.patch 
 	# Diablo3 beta fixes
 	epatch "${FILESDIR}"/AcceptEX.patch
-	epatch "${FILESDIR}"/GetExtendedTcpTable.patch
+	# epatch "${FILESDIR}"/GetExtendedTcpTable.patch
 	epatch "${FILESDIR}"/reset_stencil.patch
+	# EVE online
+	epatch "${FILESDIR}"/msvcr_eve.patch
 	epatch_user #282735
 	eautoreconf
 	sed -i '/^UPDATE_DESKTOP_DATABASE/s:=.*:=true:' tools/Makefile.in || die
