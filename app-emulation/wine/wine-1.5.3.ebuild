@@ -129,7 +129,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/pulseaudio.patch 
 	# Diablo3 beta fixes
 	epatch "${FILESDIR}"/AcceptEX.patch
-	# epatch "${FILESDIR}"/GetExtendedTcpTable.patch
 	epatch "${FILESDIR}"/reset_stencil.patch
 	# EVE online
 	epatch "${FILESDIR}"/msvcr_eve.patch
