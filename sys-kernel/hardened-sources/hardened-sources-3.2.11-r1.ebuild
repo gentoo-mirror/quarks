@@ -17,17 +17,22 @@ HGPV_URI="http://dev.gentoo.org/~blueness/hardened-sources/hardened-patches/hard
 SRC_URI="${KERNEL_URI} ${HGPV_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
 UNIPATCH_LIST="${DISTDIR}/hardened-patches-${HGPV}.extras.tar.bz2"
-UNIPATCH_LIST+=" ${FILESDIR}/wireless_injection.patch"
 UNIPATCH_EXCLUDE="4200_fbcondecor-0.9.6.patch"
 ! use xtpax && UNIPATCH_EXCLUDE+=" 4425_grsec_enable_xtpax.patch"
 
 DESCRIPTION="Hardened kernel sources (kernel series ${KV_MAJOR}.${KV_MINOR})"
 HOMEPAGE="http://www.gentoo.org/proj/en/hardened/"
-IUSE="deblob -xtpax"
+IUSE="deblob -xtpax -injection"
 
 KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc x86"
 
 RDEPEND=">=sys-devel/gcc-4.5"
+
+pkg_setup() {
+	if use injection; then
+		UNIPATCH_LIST+=" ${FILESDIR}/wireless_injection.patch"
+	fi
+}
 
 pkg_postinst() {
 	kernel-2_pkg_postinst
