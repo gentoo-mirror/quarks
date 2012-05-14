@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.1.ebuild,v 1.1 2012/03/07 23:49:32 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.4.ebuild,v 1.1 2012/03/07 23:49:32 tetromino Exp $
 
 EAPI="4"
 
@@ -13,7 +13,7 @@ if [[ ${PV} == "9999" ]] ; then
 	#KEYWORDS=""
 else
 	MY_P="${PN}-${PV/_/-}"
-	SRC_URI="mirror://sourceforge/${PN}/${MY_P}.tar.bz2"
+	SRC_URI="mirror://sourceforge/${PN}/Source/${MY_P}.tar.bz2"
 	KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
 	S=${WORKDIR}/${MY_P}
 fi
@@ -100,7 +100,7 @@ DEPEND="${RDEPEND}
 	)
 	xinerama? ( x11-proto/xineramaproto )
 	!hardened? ( sys-devel/prelink )
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	virtual/yacc
 	sys-devel/flex"
 
@@ -131,7 +131,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/AcceptEX.patch
 	epatch "${FILESDIR}"/reset_stencil.patch
 	# EVE online
-	epatch "${FILESDIR}"/msvcr_eve.patch
+	# epatch "${FILESDIR}"/msvcr_eve.patch
 	epatch_user #282735
 	eautoreconf
 	sed -i '/^UPDATE_DESKTOP_DATABASE/s:=.*:=true:' tools/Makefile.in || die
