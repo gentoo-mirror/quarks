@@ -1,15 +1,15 @@
---- /mnt/portage/portage/x11-drivers/nvidia-drivers/nvidia-drivers-295.49.ebuild	2012-05-04 07:58:57.000000000 -0700
-+++ nvidia-drivers-295.49.ebuild	2012-05-05 11:52:00.676444319 -0700
-@@ -19,7 +19,7 @@
+--- /mnt/portage/portage/x11-drivers/nvidia-drivers/nvidia-drivers-295.53.ebuild	2012-05-21 16:31:31.000000000 -0700
++++ nvidia-drivers-295.53.ebuild	2012-05-22 08:59:13.433939065 -0700
+@@ -21,7 +21,7 @@
  LICENSE="NVIDIA"
  SLOT="0"
- KEYWORDS="-* ~amd64 ~x86 ~x86-fbsd"
--IUSE="acpi custom-cflags multilib kernel_linux +tools"
-+IUSE="acpi custom-cflags multilib kernel_linux +tools pax_kernel"
+ KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
+-IUSE="acpi multilib kernel_FreeBSD kernel_linux +tools"
++IUSE="acpi multilib kernel_FreeBSD kernel_linux pax_kernel +tools"
  RESTRICT="strip"
  EMULTILIB_PKG="true"
  
-@@ -299,6 +299,12 @@
+@@ -303,6 +303,12 @@
  		# If greater than 2.6.5 use M= instead of SUBDIR=
  		convert_to_m "${NV_SRC}"/Makefile.kbuild
  	fi
