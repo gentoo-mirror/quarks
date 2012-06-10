@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.4.ebuild,v 1.1 2012/03/07 23:49:32 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.6.ebuild,v 1.1 2012/06/10 03:24:21 tetromino Exp $
 
 EAPI="4"
 
@@ -19,18 +19,23 @@ else
 fi
 
 GV="1.5"
+MV="0.0.4"
 DESCRIPTION="free implementation of Windows(tm) on Unix"
 HOMEPAGE="http://www.winehq.org/"
 SRC_URI="${SRC_URI}
 	gecko? (
-		mirror://sourceforge/wine/wine_gecko-${GV}-x86.msi
-		win64? ( mirror://sourceforge/wine/wine_gecko-${GV}-x86_64.msi )
-	)"
+		mirror://sourceforge/${PN}/Wine%20Gecko/${GV}/wine_gecko-${GV}-x86.msi
+		win64? ( mirror://sourceforge/${PN}/Wine%20Gecko/${GV}/wine_gecko-${GV}-x86_64.msi )
+	)
+	mono? ( mirror://sourceforge/${PN}/Wine%20Mono/${MV}/wine-mono-${MV}.msi )"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="alsa capi cups custom-cflags elibc_glibc fontconfig +gecko gnutls gphoto2 gsm gstreamer hardened jpeg lcms ldap mp3 ncurses nls odbc openal opencl +opengl +oss +perl png pulseaudio samba scanner selinux ssl test +threads +truetype udisks v4l +win32 +win64 +X xcomposite xinerama xml"
-REQUIRED_USE="elibc_glibc? ( threads )" #286560
+IUSE="alsa capi cups custom-cflags elibc_glibc fontconfig +gecko gnutls gphoto2
+gsm gstreamer hardened jpeg lcms ldap +mono mp3 ncurses nls odbc openal opencl
++opengl +oss +perl png pulseaudio samba scanner selinux ssl test +threads +truetype udisks v4l +win32 +win64 +X xcomposite xinerama xml"
+REQUIRED_USE="elibc_glibc? ( threads )
+	mono? ( || ( win32 !win64 ) )" #286560
 RESTRICT="test" #72375
 
 MLIB_DEPS="amd64? (
@@ -128,10 +133,7 @@ src_prepare() {
 	# Pulseaudio
 	epatch "${FILESDIR}"/pulseaudio.patch 
 	# Diablo3 beta fixes
-	epatch "${FILESDIR}"/AcceptEX.patch
 	epatch "${FILESDIR}"/reset_stencil.patch
-	# EVE online
-	# epatch "${FILESDIR}"/msvcr_eve.patch
 	epatch_user #282735
 	eautoreconf
 	sed -i '/^UPDATE_DESKTOP_DATABASE/s:=.*:=true:' tools/Makefile.in || die
@@ -219,6 +221,10 @@ src_install() {
 		insinto /usr/share/wine/gecko
 		doins "${DISTDIR}"/wine_gecko-${GV}-x86.msi
 		use win64 && doins "${DISTDIR}"/wine_gecko-${GV}-x86_64.msi
+	fi
+	if use mono ; then
+		insinto /usr/share/wine/mono
+		doins "${DISTDIR}"/wine-mono-${MV}.msi
 	fi
 	if ! use perl ; then
 		rm "${D}"usr/bin/{wine{dump,maker},function_grep.pl} "${D}"usr/share/man/man1/wine{dump,maker}.1 || die
