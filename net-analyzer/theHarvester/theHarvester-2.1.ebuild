@@ -2,8 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-# based on pentoo.ch ebuilds - quark <it@startux.de>
-
+EAPI="3"
 SUPPORT_PYTHON_ABIS="1"
 
 inherit eutils python
@@ -17,7 +16,6 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~ppc ~x86"
 IUSE=""
-EAPI="3"
 
 DEPEND=""
 RDEPEND=""
