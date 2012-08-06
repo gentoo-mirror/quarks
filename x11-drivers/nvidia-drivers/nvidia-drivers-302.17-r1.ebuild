@@ -1,7 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header:
-# /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-295.59.ebuild,v 1.1 2012/06/14 23:03:14 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-302.17-r1.ebuild,v 1.1 2012/08/05 22:43:04 cardoe Exp $
 
 EAPI="2"
 
@@ -296,6 +295,9 @@ src_prepare() {
 	use kernel_FreeBSD && cd doc
 
 	if use kernel_linux; then
+		# Fix CVE-2012-xxxx VGA window resize vulnerability
+		epatch "${FILESDIR}"/nvidia-blacklist-vga-pmu-registers-256-304.diff
+		
 		# Quiet down warnings the user does not need to see
 		sed -i \
 			-e 's:-Wsign-compare::g' \
@@ -557,17 +559,14 @@ pkg_postinst() {
 	"${ROOT}"/usr/bin/eselect opengl set --use-old nvidia
 	"${ROOT}"/usr/bin/eselect opencl set --use-old nvidia
 
-	echo
 	elog "You must be in the video group to use the NVIDIA device"
 	elog "For more info, read the docs at"
 	elog "http://www.gentoo.org/doc/en/nvidia-guide.xml#doc_chap3_sect6"
 	elog
-
 	elog "This ebuild installs a kernel module and X driver. Both must"
 	elog "match explicitly in their version. This means, if you restart"
 	elog "X, you must modprobe -r nvidia before starting it back up"
 	elog
-
 	elog "To use the NVIDIA GLX, run \"eselect opengl set nvidia\""
 	elog
 	elog "To use the NVIDIA CUDA/OpenCL, run \"eselect opencl set nvidia\""
@@ -575,11 +574,6 @@ pkg_postinst() {
 	elog "NVIDIA has requested that any bug reports submitted have the"
 	elog "output of /opt/bin/nvidia-bug-report.sh included."
 	elog
-	elog "To work with compiz, you must enable the AddARGBGLXVisuals option."
-	elog
-	elog "If you are having resolution problems, try disabling DynamicTwinView."
-	elog
-
 	if ! use tools; then
 		elog "USE=tools controls whether the nvidia-settings application"
 		elog "is installed. If you would like to use it, enable that"
