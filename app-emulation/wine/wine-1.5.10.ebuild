@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.9.ebuild,v 1.1 2012/06/24 23:23:11 tetromino Exp $
+# $Header: /var/cvsroot/gentoo-x86/app-emulation/wine/wine-1.5.10.ebuild,v 1.1 2012/08/07 08:06:43 tetromino Exp $
 
 EAPI="4"
 
@@ -18,7 +18,7 @@ else
 	S=${WORKDIR}/${MY_P}
 fi
 
-GV="1.6"
+GV="1.7"
 MV="0.0.4"
 PULSE_PATCH="winepulse-2012.06.15.patch"
 DESCRIPTION="free implementation of Windows(tm) on Unix"
@@ -33,9 +33,10 @@ SRC_URI="${SRC_URI}
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="alsa capi cups custom-cflags elibc_glibc fontconfig +gecko gnutls gphoto2 gsm gstreamer hardened jpeg lcms ldap +mono mp3 ncurses nls odbc openal opencl +opengl +oss +perl png pulseaudio samba scanner selinux ssl test +threads +truetype udisks v4l +win32 +win64 +X xcomposite xinerama xml"
+IUSE="alsa capi cups custom-cflags elibc_glibc fontconfig +gecko gnutls gphoto2 gsm gstreamer hardened jpeg lcms ldap +mono mp3 ncurses nls odbc openal opencl +opengl osmesa +oss +perl png pulseaudio samba scanner selinux ssl test +threads +truetype udisks v4l +win32 +win64 +X xcomposite xinerama xml"
 REQUIRED_USE="elibc_glibc? ( threads )
-	mono? ( || ( win32 !win64 ) )" #286560
+	mono? ( || ( win32 !win64 ) )
+	osmesa? ( opengl )" #286560
 RESTRICT="test" #72375
 
 MLIB_DEPS="amd64? (
@@ -86,6 +87,7 @@ RDEPEND="truetype? ( >=media-libs/freetype-2.0.0 media-fonts/corefonts )
 	mp3? ( >=media-sound/mpg123-1.5.0 )
 	nls? ( sys-devel/gettext )
 	odbc? ( dev-db/unixODBC )
+	osmesa? ( media-libs/mesa[osmesa] )
 	pulseaudio? ( media-sound/pulseaudio )
 	samba? ( >=net-fs/samba-3.0.25 )
 	selinux? ( sec-policy/selinux-wine )
@@ -130,11 +132,9 @@ src_unpack() {
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.1.15-winegcc.patch #260726
 	epatch "${FILESDIR}"/${PN}-1.4_rc2-multilib-portage.patch #395615
-
-	# Pulseaudio
-	#epatch "${DISTDIR}/${PULSE_PATCH}" #421365
-	epatch "${FILESDIR}"/pulseaudio.patch 
-
+	epatch "${FILESDIR}"/${PN}-1.5.10-osmesa-check.patch #429386
+	# epatch "${DISTDIR}/${PULSE_PATCH}" #421365
+	epatch "${FILESDIR}"/pulseaudio.patch
 	epatch_user #282735
 	eautoreconf
 	sed -i '/^UPDATE_DESKTOP_DATABASE/s:=.*:=true:' tools/Makefile.in || die
@@ -145,6 +145,12 @@ do_configure() {
 	local builddir="${WORKDIR}/wine$1"
 	mkdir -p "${builddir}"
 	pushd "${builddir}" >/dev/null
+
+	with_osmesa=$(use_with osmesa)
+	if use osmesa && use amd64 && [[ $1 = 32 ]]; then #430268
+		elog "win32 osmesa support is disabled for now, see bug #430268"
+		with_osmesa=--without-osmesa
+	fi
 
 	ECONF_SOURCE=${S} \
 	econf \
@@ -169,6 +175,7 @@ do_configure() {
 		$(use_with opencl) \
 		$(use_with opengl) \
 		$(use_with ssl openssl) \
+		${with_osmesa} \
 		$(use_with oss) \
 		$(use_with png) \
 		$(use_with threads pthread) \
