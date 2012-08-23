@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-304.37.ebuild,v 1.1 2012/08/16 15:37:41 cardoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/x11-drivers/nvidia-drivers/nvidia-drivers-304.37-r1.ebuild,v 1.3 2012/08/22 04:50:23 cardoe Exp $
 
 EAPI=4
 
@@ -59,10 +59,6 @@ QA_PREBUILT=""
 S=${WORKDIR}/
 
 pkg_pretend() {
-
-	if [ "${I_AM_CRAZY_TO_USE_MASKED_VERSIONS}" != "1" ]; then
-		die "Don't use experimental in development ebuilds"
-	fi
 
 	if use amd64 && has_multilib_profile && \
 		[ "${DEFAULT_ABI}" != "amd64" ]; then
@@ -150,7 +146,7 @@ src_prepare() {
 	fi
 
 	cat <<- EOF > "${S}"/nvidia.icd
-		/usr/$(get_libdir)/libcuda.so
+		/usr/$(get_libdir)/libnvidia-opencl.so
 	EOF
 
 	# Allow user patches so they can support RC kernels and whatever else
@@ -283,6 +279,7 @@ src_install() {
 	if use kernel_linux; then
 		insinto /etc/OpenCL/vendors
 		doins nvidia.icd
+		donvidia ${NV_OBJ}/libnvidia-opencl.so ${NV_SOVER}
 	fi
 
 	# Documentation
