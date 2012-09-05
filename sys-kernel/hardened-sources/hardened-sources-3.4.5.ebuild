@@ -31,6 +31,8 @@ pkg_setup() {
 	if use injection; then
 		UNIPATCH_LIST+=" ${FILESDIR}/wireless_injection.patch"
 	fi
+	# Fix for RTL8111/8168B
+	UNIPATCH_LIST+=" ${FILESDIR}/rtl8111_8168b.patch"
 }
 
 pkg_postinst() {
