@@ -28,7 +28,7 @@ fetch_file() {
     local DIGEST=$2
     
     FILE_NAME=$(basename ${URL})
-    MD5=$(curl -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32}\s*${FILE_NAME}$" | awk '{print $1}')
+    MD5=$(curl -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
 
     if [ -z ${MD5} ]; then
         die "Unable to get checksum for ${FILE_NAME}, abort"
@@ -102,13 +102,12 @@ bootstrap() {
     cd ${ROOT_FS}
     if [ -d "usr" ] ; then
         echo "There seems to be already files in ${ROOT_FS} !"
-        echo "Press Ctrl+c to abort..."
-	read
+        echo "Press <Ctrl+c> to abort, or <Return> to proceed with extracting stage3 ..."
+        read
     fi
     fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
     tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage file failed"
     rm -f $(basename ${STAGE_TARBALL})
- 
 }
 
 
@@ -119,12 +118,12 @@ setup_chroot() {
     PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
     if [ ${BIND_PORTAGE} = 1 ]; then
         mkdir -p usr/portage
-	mount --bind ${PORTDIR} ${ROOT_FS}/usr/portage || die "Error mounting ${PORTDIR}"
+        mount --bind ${PORTDIR} ${ROOT_FS}/usr/portage || die "Error mounting ${PORTDIR}"
     else
         # install latest portage snapshot
         if [ ! -d "usr/portage" ] ; then
             fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
-            tar jxf portage-latest.tar.bz2 -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
+            tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
             rm -f portage-latest.tar.bz2
         fi
     fi
@@ -143,8 +142,14 @@ setup_chroot() {
     # make.conf
     # etc/portage/*
 
-    echo "Done :D ... take a look around, any key to end"
-    read
+    if [ ${INTERACTIVE} = 1 ]; then
+        echo "Done. Entering chroot environment..."
+        chroot ${ROOT_FS} /bin/bash
+    else
+        echo "Done !"
+        echo "Press <Return> to tear down the chroot environment once you are done."
+        read
+    fi
 }
 
 
@@ -174,6 +179,7 @@ OPTIONS:
 -r chroot location, default /mnt/gentoo
 -c local cache, default /var/tmp
 -b bind mount host portage tree instead of installing portage inside chroot 
+-i interactive, setting up chroot and enter it, skip extracting stage3, portage, etc.
 -v Verbose
 EOF
 }
@@ -186,7 +192,8 @@ fi
 
 VERBOSE=0
 BIND_PORTAGE=0
-while getopts ":a:p:t:r:c:bvh" OPTIONS; do
+INTERACTIVE=0
+while getopts ":a:p:t:r:c:bvhi" OPTIONS; do
     case $OPTIONS in
         a ) ARCH=$OPTARG;;
         p ) PROFILE=$OPTARG;;
@@ -195,6 +202,7 @@ while getopts ":a:p:t:r:c:bvh" OPTIONS; do
         b ) BIND_PORTAGE=1;;
         r ) IMAGE_ROOT=$OPTARG;;
         c ) LOCAL_CACHE=$OPTARG;;
+        i ) INTERACTIVE=1;;
         ? )
             usage
             exit
@@ -210,7 +218,9 @@ if [ ${VERBOSE} = 1 ]; then
     set -x
 fi
 
-bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
+if [ ${INTERACTIVE} = 0 ]; then
+    bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
+fi
 
 # From here make sure we don't leave stuff around
 trap "cleanup ${IMAGE_ROOT}" INT TERM EXIT
