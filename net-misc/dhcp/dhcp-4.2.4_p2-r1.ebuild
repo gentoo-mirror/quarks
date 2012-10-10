@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcp/dhcp-4.2.4_p2.ebuild,v 1.1 2012/10/07 06:25:42 vapier Exp $
+# $Header: /var/cvsroot/gentoo-x86/net-misc/dhcp/dhcp-4.2.4_p2-r1.ebuild,v 1.1 2012/10/10 04:16:40 vapier Exp $
 
 EAPI="4"
 
@@ -55,6 +55,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-4.2.2-dhclient-stdin-conf.patch
 	epatch "${FILESDIR}"/${PN}-4.2.2-nogateway.patch #265531
 	epatch "${FILESDIR}"/${PN}-4.2.1-dhclient-parse_option_param-Bad-format-a.patch #432998
+	epatch "${FILESDIR}"/${PN}-4.2.4-quieter-ping.patch #296921
+	epatch "${FILESDIR}"/${PN}-4.2.4-always-accept-4.patch #437108
 
 	# NetworkManager support patches
 	# If they fail to apply to future versions they will be dropped
