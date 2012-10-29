@@ -172,7 +172,7 @@ src_compile() {
 	# build local bind cruft first
 	emake -C bind/bind-*/lib/export install
 	# then build standard dhcp code
-	emake
+	emake AR="$(tc-getAR)"
 }
 
 src_install() {
