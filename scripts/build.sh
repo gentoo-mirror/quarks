@@ -11,9 +11,11 @@ GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
 LOCAL_CACHE=/var/tmp
 IMAGE_ROOT=/mnt/gentoo
 
+HOST_PORTDIR=/mnt/portage
+
 # Import certain values from host config
-_PORTDIR=$(. /etc/make.conf && echo $PORTDIR)
-PORTDIR=${_PORTDIR:-/usr/portage}
+# _PORTDIR=$(. /etc/portage/make.conf && echo $PORTDIR)
+# HOST_PORTDIR=${_PORTDIR:-/usr/portage}
 
 set -o nounset
 
@@ -28,16 +30,16 @@ fetch_file() {
     local DIGEST=$2
     
     FILE_NAME=$(basename ${URL})
-    MD5=$(curl -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
+    SHA512=$(curl -s -S ${DIGEST} | grep -A1 -e "^# SHA512 HASH" | grep -o -E -e "^[0-9a-f]{128} *${FILE_NAME}$" | awk '{print $1}')
 
-    if [ -z ${MD5} ]; then
+    if [ -z ${SHA512} ]; then
         die "Unable to get checksum for ${FILE_NAME}, abort"
     fi
 
     # Do we have local copy
     if [ -f ${LOCAL_CACHE}/${FILE_NAME} ]; then
         # if we have local, correct copy use it
-        if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
+        if [ $(sha512sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${SHA512} ]; then
             cp ${LOCAL_CACHE}/${FILE_NAME} .
             return 
         else
@@ -46,7 +48,7 @@ fetch_file() {
     fi
 
     wget -nc ${URL} || die "Cannot download ${URL}!" 
-    if [ $(md5sum ${FILE_NAME} | awk '{print $1}') != ${MD5} ]; then
+    if [ $(sha512sum ${FILE_NAME} | awk '{print $1}') != ${SHA512} ]; then
         die "Invalid checksum for ${FILE_NAME}!"
     fi
 
@@ -116,9 +118,10 @@ setup_chroot() {
     local ROOT_FS=$1
 
     PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
-    if [ ${BIND_PORTAGE} = 1 ]; then
-        mkdir -p usr/portage
-        mount --bind ${PORTDIR} ${ROOT_FS}/usr/portage || die "Error mounting ${PORTDIR}"
+    if [ ${BIND_PORTAGE} = 1 ] ; then
+        if [ -d ${ROOT_FS}/${BIND_PORTAGE} ] ; then
+            mount --bind ${PORTDIR} ${ROOT_FS}/${BIND_PORTAGE} || die "Error mounting ${PORTDIR}"
+	fi
     else
         # install latest portage snapshot
         if [ ! -d "usr/portage" ] ; then
@@ -139,7 +142,6 @@ setup_chroot() {
     # Compile own kernel later
     # boot + kernel + lib/modules
 
-    # make.conf
     # etc/portage/*
 
     if [ ${INTERACTIVE} = 1 ]; then
@@ -158,8 +160,8 @@ cleanup() {
     local ROOT_FS=$1
     umount ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
     
-    if [ ${BIND_PORTAGE} = 1 ]; then
-        umount ${ROOT_FS}/usr/portage
+    if [ ${BIND_PORTAGE} != 0 ]; then
+        umount ${ROOT_FS}/${BIND_PORTAGE}
     fi
 }
 
@@ -176,9 +178,9 @@ OPTIONS:
 -a arch, either i686 or x86_64, defaults to uname -m
 -p profile, either hardened or hardened-no-multilib or server(default)
 -t The timezone to use, default to GMT
--r chroot location, default /mnt/gentoo
--c local cache, default /var/tmp
--b bind mount host portage tree instead of installing portage inside chroot 
+-r chroot location (default $IMAGE_ROOT )
+-c local cache (default $LOCAL_CACHE)
+-b bind mount host portage tree (default $HOST_PORTDIR)
 -i interactive, setting up chroot and enter it, skip extracting stage3, portage, etc.
 -v Verbose
 EOF
@@ -193,7 +195,7 @@ fi
 VERBOSE=0
 BIND_PORTAGE=0
 INTERACTIVE=0
-while getopts ":a:p:t:r:c:bvhi" OPTIONS; do
+while getopts ":a:p:t:r:c:m:bvhi" OPTIONS; do
     case $OPTIONS in
         a ) ARCH=$OPTARG;;
         p ) PROFILE=$OPTARG;;
@@ -203,6 +205,7 @@ while getopts ":a:p:t:r:c:bvhi" OPTIONS; do
         r ) IMAGE_ROOT=$OPTARG;;
         c ) LOCAL_CACHE=$OPTARG;;
         i ) INTERACTIVE=1;;
+        m ) MAKE_CONF=$OPTARG;;
         ? )
             usage
             exit
