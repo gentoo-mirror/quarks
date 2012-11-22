@@ -11,11 +11,6 @@ GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
 LOCAL_CACHE=/var/tmp
 IMAGE_ROOT=/mnt/gentoo
 
-HOST_PORTDIR=/mnt/portage
-
-# Import certain values from host config
-# _PORTDIR=$(. /etc/portage/make.conf && echo $PORTDIR)
-# HOST_PORTDIR=${_PORTDIR:-/usr/portage}
 
 set -o nounset
 
@@ -117,10 +112,18 @@ bootstrap() {
 setup_chroot() {
     local ROOT_FS=$1
 
+    # Import certain values from host config
+    _PORTDIR=$(. /etc/portage/make.conf && echo $PORTDIR)
+    _DISTDIR=$(. /etc/portage/make.conf && echo $DISTDIR)
+    _PKGDIR=$(. /etc/portage/make.conf && echo $PKGDIR)
+    HOST_PORTDIR=${_PORTDIR:-/usr/portage}
+    HOST_DISTDIR=${_DISTDIR:-/usr/portage/distfiles}
+    HOST_PKGDIR=${_PKGDIR:-/usr/portage/packages}
+
     PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
     if [ ${BIND_PORTAGE} = 1 ] ; then
-        if [ -d ${ROOT_FS}/${BIND_PORTAGE} ] ; then
-            mount --bind ${PORTDIR} ${ROOT_FS}/${BIND_PORTAGE} || die "Error mounting ${PORTDIR}"
+        if [ -d ${ROOT_FS}/${PORTDIR} ] ; then
+            mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${PORTDIR} || die "Error mounting ${PORTDIR}"
 	fi
     else
         # install latest portage snapshot
@@ -161,7 +164,7 @@ cleanup() {
     umount ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
     
     if [ ${BIND_PORTAGE} != 0 ]; then
-        umount ${ROOT_FS}/${BIND_PORTAGE}
+        umount ${ROOT_FS}/${HOST_PORTAGE}
     fi
 }
 
@@ -180,7 +183,7 @@ OPTIONS:
 -t The timezone to use, default to GMT
 -r chroot location (default $IMAGE_ROOT )
 -c local cache (default $LOCAL_CACHE)
--b bind mount host portage tree (default $HOST_PORTDIR)
+-b bind mount host portage tree 
 -i interactive, setting up chroot and enter it, skip extracting stage3, portage, etc.
 -v Verbose
 EOF
@@ -223,6 +226,11 @@ fi
 
 if [ ${INTERACTIVE} = 0 ]; then
     bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
+fi
+
+if [ ! -r $MAKE_CONF ]; then
+    echo "Cannot find requested make.conf: $MAKE_CONF"
+    exit 1
 fi
 
 # From here make sure we don't leave stuff around
