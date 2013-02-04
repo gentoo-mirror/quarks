@@ -14,9 +14,9 @@ make install
 
 cp /usr/src/linux/.config  /etc/kernels/kernel-config-${NEW} 
 
-# rm -f /boot/*.previous
+# rm -f /boot/*.old
 if [ -f "/boot/initrd-${NEW}" ] ; then
-    mv "/boot/initrd-${NEW}" "/boot/initrd-${NEW}.previous"
+    mv "/boot/initrd-${NEW}" "/boot/initrd-${NEW}.old"
 fi
 
 dracut -H --force --strip /boot/initrd-${NEW} ${NEW}
