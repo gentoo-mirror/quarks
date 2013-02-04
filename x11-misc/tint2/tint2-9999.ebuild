@@ -23,7 +23,7 @@ HOMEPAGE="http://code.google.com/p/tint2/"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="battery examples tint2conf"
+IUSE="examples tint2conf"
 
 COMMON_DEPEND="dev-libs/glib:2
 	x11-libs/cairo
@@ -50,8 +50,8 @@ src_prepare() {
 }
 
 src_configure() {
-	local mycmakeargs=(
-		$(cmake-utils_use_enable battery BATTERY)
+	local mycmakeargs=( 
+		-DBATTERY=ON
 		$(cmake-utils_use_enable examples EXAMPLES)
 		$(cmake-utils_use_enable tint2conf TINT2CONF)
 
