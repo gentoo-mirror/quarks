@@ -1,27 +1,33 @@
 #!/bin/sh
 set -e
 
+CPUS=$(nproc)
 NEW=$(grep "Kernel Configuration" /usr/src/linux/.config | awk '{print $3}')
 echo $NEW
 
 cd /usr/src/linux-${NEW}
 # make clean
 # make oldconfig
-make -j4 menuconfig
-make -j4 all
-make -j4 modules_install
-make install
+make menuconfig
+make -j${CPUS} all
+make modules_install
+
+for f in initrd vmlinuz System.map config; do
+	[ -e "/boot/$f-${NEW}" ] && mv "/boot/$f-${NEW}" "/boot/$f-${NEW}.previous"
+done
 
 cp /usr/src/linux/.config  /etc/kernels/kernel-config-${NEW} 
-
-# rm -f /boot/*.old
-if [ -f "/boot/initrd-${NEW}" ] ; then
-    mv "/boot/initrd-${NEW}" "/boot/initrd-${NEW}.old"
-fi
+make install
 
 dracut -H --force --strip /boot/initrd-${NEW} ${NEW}
 
 grub2-mkconfig -o /boot/grub2/grub.cfg
+
+echo "Building tools from within kernel sources..."
+echo "  cpupower:"
+cd /usr/src/linux/tools/power/cpupower && make
+cp -a cpupower /usr/local/bin
+cp -a libcpupower.so* /usr/lib
 
 echo "After successful boot of new kernel run:"
 echo "   root # module-rebuild rebuild"
