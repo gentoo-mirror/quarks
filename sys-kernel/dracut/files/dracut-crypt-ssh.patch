@@ -1,0 +1,64 @@
+commit 435277eac4489ef0fe1aa33591ae4aa27520ab63
+Author: Stefan Reimer <it@startux.de>
+Date:   Sat Mar 30 13:02:51 2013 -0700
+
+    Add initial version of crypt-ssh
+
+diff --git a/modules.d/90crypt/cryptroot-ask.sh b/modules.d/90crypt/cryptroot-ask.sh
+index 9665e48..026b127 100755
+--- a/modules.d/90crypt/cryptroot-ask.sh
++++ b/modules.d/90crypt/cryptroot-ask.sh
+@@ -146,11 +146,16 @@ fi
+ 
+ if [ $ask_passphrase -ne 0 ]; then
+     luks_open="$(command -v cryptsetup) $cryptsetupopts luksOpen"
+-    ask_for_password --ply-tries 5 \
+-        --ply-cmd "$luks_open -T1 $device $luksname" \
+-        --ply-prompt "Password ($device)" \
+-        --tty-tries 1 \
+-        --tty-cmd "$luks_open -T5 $device $luksname"
++
++    if getarg 1 rc.luks.ssh; then
++        ask_for_password --ply-tries 5 \
++            --ply-cmd "$luks_open -T1 $device $luksname" \
++            --ply-prompt "Password ($device)" \
++            --tty-tries 1 \
++            --tty-cmd "$luks_open -T5 $device $luksname"
++    else
++        /usr/sbin/dropbear -p 22001 -F -m -j -k -s
++    fi
+     unset luks_open
+ fi
+ 
+diff --git a/modules.d/92crypt-ssh/module-setup.sh b/modules.d/92crypt-ssh/module-setup.sh
+new file mode 100644
+index 0000000..d5e1342
+--- /dev/null
++++ b/modules.d/92crypt-ssh/module-setup.sh
+@@ -0,0 +1,26 @@
++#!/bin/bash
++# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
++# ex: ts=8 sw=4 sts=4 et filetype=sh
++
++# Author: Stefan Reimer
++# Date: 2013-Mar-24
++
++check() {
++    [ -x /usr/sbin/dropbear ]
++}
++
++depends() {
++    echo "network crypt"
++    return 0
++}
++
++install() {
++    #Install dropbear incl. keys
++    [ -r /etc/dropbear/dropbear_dss_host_key ] || /usr/bin/dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key
++    [ -r /etc/dropbear/dropbear_rsa_host_key ] || /usr/bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
++
++    inst /usr/sbin/dropbear "/usr/sbin/dropbear"
++    inst /etc/dropbear/dropbear_dss_host_key "/etc/dropbear/dropbear_dss_host_key"
++    inst /etc/dropbear/dropbear_rsa_host_key "/etc/dropbear/dropbear_rsa_host_key"
++    [ -r /root/.ssh/authorized_keys ] && inst /root/.ssh/authorized_keys "/root/.ssh/authorized_keys"
++}

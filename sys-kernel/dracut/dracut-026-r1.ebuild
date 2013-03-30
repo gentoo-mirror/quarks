@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-023.ebuild,v 1.2 2012/09/09 16:48:14 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-026-r1.ebuild,v 1.1 2013/03/12 08:47:57 aidecoe Exp $
 
 EAPI=4
 
-inherit eutils linux-info toolchain-funcs
+inherit eutils linux-info
 
 add_req_use_for() {
 	local dep="$1"; shift
@@ -21,10 +21,11 @@ HOMEPAGE="http://dracut.wiki.kernel.org"
 SRC_URI="mirror://kernel/linux/utils/boot/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 
 REQUIRED_USE="dracut_modules_crypt-gpg? ( dracut_modules_crypt )
 	dracut_modules_crypt-loop? ( dracut_modules_crypt )
+	dracut_modules_crypt-ssh? ( dracut_modules_crypt )
 	dracut_modules_livenet? ( dracut_modules_dmsquash-live )
 	"
 COMMON_MODULES="
@@ -33,6 +34,7 @@ COMMON_MODULES="
 	dracut_modules_btrfs
 	dracut_modules_caps
 	dracut_modules_crypt-gpg
+	dracut_modules_crypt-ssh
 	dracut_modules_crypt-loop
 	dracut_modules_gensplash
 	dracut_modules_mdraid
@@ -74,18 +76,21 @@ RDEPEND="${CDEPEND}
 	|| ( >=sys-apps/module-init-tools-3.8 >sys-apps/kmod-5[tools] )
 	>=sys-apps/sysvinit-2.87-r3
 	>=sys-apps/util-linux-2.21
+	virtual/pkgconfig
 
 	debug? ( dev-util/strace )
 	device-mapper? ( || ( sys-fs/device-mapper >=sys-fs/lvm2-2.02.33 ) )
-	net? ( net-misc/curl >=net-misc/dhcp-4.2.1-r1[client,ipv6] sys-apps/iproute2 )
+	net? ( net-misc/curl >=net-misc/dhcp-4.2.4_p2-r1[client] sys-apps/iproute2 )
 	selinux? ( sys-libs/libselinux sys-libs/libsepol )
 	dracut_modules_biosdevname? ( sys-apps/biosdevname )
-	dracut_modules_bootchart? ( app-benchmarks/bootchart2 )
+	dracut_modules_bootchart? ( app-benchmarks/bootchart2 sys-apps/usleep
+		sys-process/acct )
 	dracut_modules_btrfs? ( sys-fs/btrfs-progs )
 	dracut_modules_caps? ( sys-libs/libcap )
 	dracut_modules_cifs? ( net-fs/cifs-utils )
 	dracut_modules_crypt? ( sys-fs/cryptsetup )
 	dracut_modules_crypt-gpg? ( app-crypt/gnupg )
+	dracut_modules_crypt-ssh? ( net-misc/dropbear )
 	dracut_modules_dmraid? ( sys-fs/dmraid sys-fs/multipath-tools )
 	dracut_modules_gensplash? ( media-gfx/splashutils )
 	dracut_modules_iscsi? ( >=sys-block/open-iscsi-2.0.871.3 )
@@ -103,8 +108,11 @@ DEPEND="${CDEPEND}
 	>=dev-libs/libxslt-1.1.26
 	app-text/docbook-xml-dtd:4.5
 	>=app-text/docbook-xsl-stylesheets-1.75.2
-	virtual/pkgconfig
 	"
+
+DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
+	README.testsuite TODO )
+DRACUT_LIBDIR="/usr/lib"
 
 #
 # Helper functions
@@ -148,11 +156,12 @@ rm_module() {
 #
 
 src_prepare() {
-	local udevdir="$($(tc-getPKG_CONFIG) udev --variable=udevdir)"
-	[[ ${udevdir} ]] || die "Couldn't detect udevdir"
-	einfo "Setting udevdir to ${udevdir}..."
-	sed -e "s@udevdir=.*@udevdir=\"${udevdir}\"@" \
-		-i "${S}/dracut.conf.d/gentoo.conf.example" || die
+	epatch "${FILESDIR}/${PV}-0001-dracut-functions.sh-support-for-altern.patch"
+	epatch "${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
+	epatch "${FILESDIR}/${PV}-0004-lsinitrd.sh-fix-for-default-initrd-not.patch"
+	epatch "${FILESDIR}/${PV}-0005-lsinitrd.sh-removed-trailing.patch"
+	epatch "${FILESDIR}/${PV}-0006-make-host_fs_types-a-hashmap.patch"
+	chmod +x "${S}/modules.d/95udev-rules/udev-rules-prepare.sh"
 
 	if use dracut_modules_systemd; then
 		local systemdutildir="$($(tc-getPKG_CONFIG) systemd \
@@ -169,29 +178,38 @@ src_prepare() {
 		sed -e "5asystemdsystemunitdir=\"${systemdsystemunitdir}\"" \
 			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
 	fi
+
+	if use dracut_modules_crypt-ssh; then
+		epatch "${FILESDIR}/${PV}-crypt-ssh.patch"
+	fi
+}
+
+src_configure() {
+	econf --libdir="${DRACUT_LIBDIR}"
 }
 
 src_compile() {
-	emake prefix=/usr sysconfdir=/etc DESTDIR="${D}" doc
+	emake doc
+
 	if use optimization; then
 		ewarn "Enabling experimental optimization!"
 		tc-export CC
-		emake prefix=/usr sysconfdir=/etc DESTDIR="${D}" install/dracut-install
+		emake install/dracut-install
 	fi
 }
 
 src_install() {
-	emake prefix=/usr libdir="/usr/$(get_libdir)" sysconfdir=/etc \
-		DESTDIR="${D}" install
+	default
 
-	dodir /var/lib/dracut/overlay
-	dodoc HACKING TODO AUTHORS NEWS README*
+	local libdir="${DRACUT_LIBDIR}"
 
-	insinto /etc/dracut.conf.d
+	insinto "${libdir}/dracut/dracut.conf.d/"
 	newins dracut.conf.d/gentoo.conf.example gentoo.conf
 
 	insinto /etc/logrotate.d
 	newins dracut.logrotate dracut
+
+	dodir /var/lib/dracut/overlay
 
 	dohtml dracut.html
 
@@ -199,7 +217,7 @@ src_install() {
 	# Modules
 	#
 	local module
-	modules_dir="${D}/usr/$(get_libdir)/dracut/modules.d"
+	modules_dir="${D%/}/${libdir#/}/dracut/modules.d"
 
 	# Remove modules not enabled by USE flags
 	for module in ${IUSE_DRACUT_MODULES} ; do
@@ -266,5 +284,15 @@ pkg_postinst() {
 		ewarn "  CONFIG_DEVTMPFS"
 		ewarn "  CONFIG_MODULES"
 		ewarn ""
+	fi
+
+	if use dracut_modules_crypt || use dracut_modules_dmraid || use \
+		dracut_modules_mdraid || use dracut_modules_lvm; then
+
+		if ! [[ $(</proc/cmdline) =~ rd.auto[\ =] ]]; then
+			ewarn "Autoassembly of special devices like cryptoLUKS, dmraid, "
+			ewarn "mdraid or lvm is off for default as of  >=dracut-024."
+			ewarn "Use rd.auto option to turn it on."
+		fi
 	fi
 }
