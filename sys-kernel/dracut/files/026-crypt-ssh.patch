@@ -54,11 +54,12 @@ index 0000000..d5e1342
 +
 +install() {
 +    #Install dropbear incl. keys
-+    [ -r /etc/dropbear/dropbear_dss_host_key ] || /usr/bin/dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key
-+    [ -r /etc/dropbear/dropbear_rsa_host_key ] || /usr/bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key
++    mkdir -p /etc/dropbear
++    [ -r /etc/dropbear/dropbear_dss_host_key ] || /usr/bin/dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key > /dev/null
++    [ -r /etc/dropbear/dropbear_rsa_host_key ] || /usr/bin/dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key > /dev/null
 +
 +    inst /usr/sbin/dropbear "/usr/sbin/dropbear"
 +    inst /etc/dropbear/dropbear_dss_host_key "/etc/dropbear/dropbear_dss_host_key"
 +    inst /etc/dropbear/dropbear_rsa_host_key "/etc/dropbear/dropbear_rsa_host_key"
-+    [ -r /root/.ssh/authorized_keys ] && inst /root/.ssh/authorized_keys "/root/.ssh/authorized_keys"
++    [ -r /root/.ssh/authorized_keys ] && inst /root/.ssh/authorized_keys "/etc/dropbear/authorized_keys"
 +}
