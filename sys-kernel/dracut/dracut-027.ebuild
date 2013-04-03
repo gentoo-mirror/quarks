@@ -1,10 +1,10 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-026-r1.ebuild,v 1.1 2013/03/12 08:47:57 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-027.ebuild,v 1.2 2013/04/02 14:16:51 aidecoe Exp $
 
 EAPI=4
 
-inherit eutils linux-info
+inherit bash-completion-r1 eutils linux-info
 
 add_req_use_for() {
 	local dep="$1"; shift
@@ -23,9 +23,11 @@ LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 
-REQUIRED_USE="dracut_modules_crypt-gpg? ( dracut_modules_crypt )
-	dracut_modules_crypt-loop? ( dracut_modules_crypt )
+REQUIRED_USE="
+	dracut_modules_bootchart? ( !dracut_modules_systemd )
+	dracut_modules_crypt-gpg? ( dracut_modules_crypt )
 	dracut_modules_crypt-ssh? ( dracut_modules_crypt )
+	dracut_modules_crypt-loop? ( dracut_modules_crypt )
 	dracut_modules_livenet? ( dracut_modules_dmsquash-live )
 	"
 COMMON_MODULES="
@@ -34,7 +36,6 @@ COMMON_MODULES="
 	dracut_modules_btrfs
 	dracut_modules_caps
 	dracut_modules_crypt-gpg
-	dracut_modules_crypt-ssh
 	dracut_modules_crypt-loop
 	dracut_modules_gensplash
 	dracut_modules_mdraid
@@ -57,6 +58,7 @@ NETWORK_MODULES="
 	dracut_modules_nbd
 	dracut_modules_nfs
 	dracut_modules_ssh-client
+	dracut_modules_crypt-ssh
 	"
 add_req_use_for device-mapper ${DM_MODULES}
 add_req_use_for net ${NETWORK_MODULES}
@@ -65,8 +67,8 @@ IUSE="debug device-mapper optimization net selinux ${IUSE_DRACUT_MODULES}"
 
 RESTRICT="test"
 
-CDEPEND=">sys-fs/udev-166
-	dracut_modules_systemd? ( sys-apps/systemd )
+CDEPEND="virtual/udev
+	dracut_modules_systemd? ( >=sys-apps/systemd-199 )
 	"
 RDEPEND="${CDEPEND}
 	app-arch/cpio
@@ -112,7 +114,7 @@ DEPEND="${CDEPEND}
 
 DOCS=( AUTHORS HACKING NEWS README README.generic README.kernel README.modules
 	README.testsuite TODO )
-DRACUT_LIBDIR="/usr/lib"
+MY_LIBDIR="/usr/lib"
 
 #
 # Helper functions
@@ -156,12 +158,9 @@ rm_module() {
 #
 
 src_prepare() {
+	epatch "${FILESDIR}/${PV}-0000-fix-version-print.patch"
 	epatch "${FILESDIR}/${PV}-0001-dracut-functions.sh-support-for-altern.patch"
 	epatch "${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
-	epatch "${FILESDIR}/${PV}-0004-lsinitrd.sh-fix-for-default-initrd-not.patch"
-	epatch "${FILESDIR}/${PV}-0005-lsinitrd.sh-removed-trailing.patch"
-	epatch "${FILESDIR}/${PV}-0006-make-host_fs_types-a-hashmap.patch"
-	chmod +x "${S}/modules.d/95udev-rules/udev-rules-prepare.sh"
 
 	if use dracut_modules_systemd; then
 		local systemdutildir="$($(tc-getPKG_CONFIG) systemd \
@@ -178,14 +177,14 @@ src_prepare() {
 		sed -e "5asystemdsystemunitdir=\"${systemdsystemunitdir}\"" \
 			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
 	fi
-
 	if use dracut_modules_crypt-ssh; then
-		epatch "${FILESDIR}/${PV}-crypt-ssh.patch"
+			epatch "${FILESDIR}/${PV}-crypt-ssh.patch"
 	fi
+
 }
 
 src_configure() {
-	econf --libdir="${DRACUT_LIBDIR}"
+	econf --libdir="${MY_LIBDIR}"
 }
 
 src_compile() {
@@ -201,9 +200,13 @@ src_compile() {
 src_install() {
 	default
 
-	local libdir="${DRACUT_LIBDIR}"
+	newbashcomp "${PN}-bash-completion.sh" "${PN}"
 
-	insinto "${libdir}/dracut/dracut.conf.d/"
+	local dracutlibdir="${MY_LIBDIR#/}/dracut"
+
+	echo "DRACUT_VERSION=$PVR" > "${D%/}/${dracutlibdir}/dracut-version.sh"
+
+	insinto "${dracutlibdir}/dracut.conf.d/"
 	newins dracut.conf.d/gentoo.conf.example gentoo.conf
 
 	insinto /etc/logrotate.d
@@ -217,7 +220,7 @@ src_install() {
 	# Modules
 	#
 	local module
-	modules_dir="${D%/}/${libdir#/}/dracut/modules.d"
+	modules_dir="${D%/}/${dracutlibdir}/modules.d"
 
 	# Remove modules not enabled by USE flags
 	for module in ${IUSE_DRACUT_MODULES} ; do
@@ -231,8 +234,16 @@ src_install() {
 
 	# Following flags define set of helper modules which are base dependencies
 	# for others and as so have no practical use, so remove these modules.
-	use device-mapper  || rm_module 90dm
+	use device-mapper || rm_module 90dm
 	use net || rm_module 40network 45ifcfg 45url-lib
+
+	if use dracut_modules_systemd; then
+		# With systemd following modules do not make sense
+		rm_module 96securityfs 98selinux
+	else
+		# Without systemd following modules do not make sense
+		rm_module 00systemd-bootchart
+	fi
 
 	# Remove S/390 modules which are not tested at all
 	rm_module 80cms 95dasd 95dasd_mod 95zfcp 95znet
@@ -254,13 +265,12 @@ pkg_postinst() {
 		ewarn "kernel before booting image generated with this Dracut version."
 		ewarn ""
 
-		local CONFIG_CHECK="~BLK_DEV_INITRD ~DEVTMPFS ~MODULES"
+		local CONFIG_CHECK="~BLK_DEV_INITRD ~DEVTMPFS"
 
 		# Kernel configuration options descriptions:
 		local desc_DEVTMPFS="Maintain a devtmpfs filesystem to mount at /dev"
 		local desc_BLK_DEV_INITRD="Initial RAM filesystem and RAM disk "\
 "(initramfs/initrd) support"
-		local desc_MODULES="Enable loadable module support"
 
 		local opt desc
 
@@ -282,7 +292,6 @@ pkg_postinst() {
 		ewarn ""
 		ewarn "  CONFIG_BLK_DEV_INITRD"
 		ewarn "  CONFIG_DEVTMPFS"
-		ewarn "  CONFIG_MODULES"
 		ewarn ""
 	fi
 
