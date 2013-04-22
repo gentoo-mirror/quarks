@@ -16,7 +16,7 @@ for f in initrd vmlinuz System.map config; do
 	[ -e "/boot/$f-${NEW}" ] && mv "/boot/$f-${NEW}" "/boot/$f-${NEW}.previous"
 done
 
-cp /usr/src/linux/.config  /etc/kernels/kernel-config-${NEW} 
+cp /usr/src/linux/.config  /etc/kernel/kernel-config-${NEW} 
 make install
 
 dracut -H --force --strip /boot/initrd-${NEW} ${NEW}
