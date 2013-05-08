@@ -1,6 +1,6 @@
 # Copyright 1999-2013 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-027.ebuild,v 1.2 2013/04/02 14:16:51 aidecoe Exp $
+# $Header: /var/cvsroot/gentoo-x86/sys-kernel/dracut/dracut-027-r1.ebuild,v 1.1 2013/04/18 13:37:10 aidecoe Exp $
 
 EAPI=4
 
@@ -81,7 +81,7 @@ RDEPEND="${CDEPEND}
 	virtual/pkgconfig
 
 	debug? ( dev-util/strace )
-	device-mapper? ( || ( sys-fs/device-mapper >=sys-fs/lvm2-2.02.33 ) )
+	device-mapper? ( >=sys-fs/lvm2-2.02.33 )
 	net? ( net-misc/curl >=net-misc/dhcp-4.2.4_p2-r1[client] sys-apps/iproute2 )
 	selinux? ( sys-libs/libselinux sys-libs/libsepol )
 	dracut_modules_biosdevname? ( sys-apps/biosdevname )
@@ -161,6 +161,8 @@ src_prepare() {
 	epatch "${FILESDIR}/${PV}-0000-fix-version-print.patch"
 	epatch "${FILESDIR}/${PV}-0001-dracut-functions.sh-support-for-altern.patch"
 	epatch "${FILESDIR}/${PV}-0002-gentoo.conf-let-udevdir-be-handled-by-.patch"
+	epatch "${FILESDIR}/${PV}-0003-Do-not-call-plymouth-with-full-path.patch"
+	epatch "${FILESDIR}/${PV}-0004-plymouth-plymouth-pretrigger.sh-fixup-.patch"
 
 	if use dracut_modules_systemd; then
 		local systemdutildir="$($(tc-getPKG_CONFIG) systemd \
@@ -178,9 +180,8 @@ src_prepare() {
 			-i "${S}/dracut.conf.d/gentoo.conf.example" || die
 	fi
 	if use dracut_modules_crypt-ssh; then
-			epatch "${FILESDIR}/${PV}-crypt-ssh.patch"
+		epatch "${FILESDIR}/${PV}-crypt-ssh.patch"
 	fi
-
 }
 
 src_configure() {
@@ -234,7 +235,7 @@ src_install() {
 
 	# Following flags define set of helper modules which are base dependencies
 	# for others and as so have no practical use, so remove these modules.
-	use device-mapper || rm_module 90dm
+	use device-mapper  || rm_module 90dm
 	use net || rm_module 40network 45ifcfg 45url-lib
 
 	if use dracut_modules_systemd; then

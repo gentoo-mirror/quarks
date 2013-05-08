@@ -137,9 +137,8 @@ setup_chroot() {
 
 	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
 	if [ ${BIND_PORTAGE} = 1 ] ; then
-		if [ -d ${ROOT_FS}/${HOST_PORTDIR} ] ; then
-			mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${HOST_PORTDIR} || die "Error mounting ${HOST_PORTDIR}"
-		fi
+		mkdir -p ${ROOT_FS}/${HOST_PORTDIR}
+		mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${HOST_PORTDIR} || die "Error mounting ${HOST_PORTDIR}"
 	else
 		# install latest portage snapshot
 		if [ ! -d "usr/portage" ] ; then
