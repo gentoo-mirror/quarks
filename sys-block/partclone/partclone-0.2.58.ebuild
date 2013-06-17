@@ -2,8 +2,7 @@ inherit eutils
 
 DESCRIPTION="Partition cloning tool"
 HOMEPAGE="http://partclone.org"
-#SRC_URI="mirror://sourceforge/partclone/partclone_${PV}.tar.gz"
-SRC_URI="http://downloads.sourceforge.net/project/partclone/stable/${PV}/partclone-${PV}.tar.gz"
+SRC_URI="http://sourceforge.net/projects/partclone/files/stable/${PV}/partclone_${PV}.orig.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
