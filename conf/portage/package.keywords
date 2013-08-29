@@ -1,0 +1,6 @@
+sys-kernel/dracut
+sys-boot/grub
+
+app-emulation/lxc
+
+=media-sound/logitechmediaserver-bin-7.7.2-r2

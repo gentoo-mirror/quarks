@@ -1,0 +1,6 @@
+# required by media-sound/pulseaudio-2.1-r1[udev]
+# required by media-libs/openal-1.15.1[pulseaudio]
+# required by media-video/ffmpeg-1.0.7[openal]
+# required by virtual/ffmpeg-0.10.3
+# required by media-plugins/alsa-plugins-1.0.26[ffmpeg]
+=virtual/udev-200 hwdb
