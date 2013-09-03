@@ -1,6 +1,92 @@
-sys-kernel/dracut
+# Base 
 sys-boot/grub
+sys-fs/cryptsetup
+sys-kernel/dracut
+# sys-boot/efibootmgr
+# sys-boot/os-prober
+# sys-kernel/hardened-sources
+app-admin/paxtest
 
-app-emulation/lxc
+# AMD overclock
+sys-firmware/amd-ucode
+sys-power/tpc
+# sys-power/cpupower
 
-=media-sound/logitechmediaserver-bin-7.7.2-r2
+# Shiny boot
+sys-boot/plymouth-openrc-plugin
+sys-boot/plymouth
+
+media-gfx/gimp
+# required by media-libs/gegl-0.2.0-r2
+# required by media-gfx/gimp-2.8.6
+# required by @selected
+# required by @world (argument)
+=media-libs/babl-0.1.10-r1 ~amd64
+# required by media-gfx/gimp-2.8.6
+# required by @selected
+# required by @world (argument)
+=media-libs/gegl-0.2.0-r2 ~amd64
+
+app-emulation/wine
+app-emulation/uae
+games-emulation/advancemame
+
+# Color Management
+# media-gfx/colorhug-client
+media-gfx/dispcalgui
+
+www-client/firefox
+www-plugins/adobe-flash
+
+# EVE
+games-util/gtkevemon **
+games-util/pyfa
+# required by games-util/pyfa-1.1.15[graph]
+# required by pyfa (argument)
+=dev-python/matplotlib-1.3.0 ~amd64
+# required by games-util/pyfa-1.1.15
+# required by pyfa (argument)
+=dev-python/sqlalchemy-0.8.2 ~amd64
+
+
+# media-libs/mesa
+# app-admin/eselect-opengl
+# sys-devel/llvm
+# x11-proto/glproto
+# x11-libs/libdrm
+# x11-drivers/xf86-video-ati
+# media-libs/libtxc_dxtn
+
+# x11-drivers/ati-drivers 
+x11-drivers/nvidia-drivers 
+# media-video/nvidia-settings
+# app-admin/eselect-opencl
+
+#required by lxdm (argument)
+lxde-base/lxdm
+x11-misc/tint2
+
+#required by dev-java/icedtea-7.2.0-r1[nsplugin], required by dev-java/icedtea (argument)
+>=dev-java/icedtea-web-1.1.3-r7 ~amd64
+#required by dev-java/icedtea-web-1.1.3-r7
+>=dev-java/icedtea-7.2.0-r1 ~amd64
+
+# Android
+dev-util/android-sdk-update-manager
+
+# PenTesting
+#net-analyzer/metasploit
+#dev-ruby/kissfft
+#dev-ruby/msgpack
+#net-analyzer/fierce
+#net-analyzer/theHarvester
+# net-analyzer/dnsrecon
+#app-forensics/regripper
+
+media-video/rtmpdump **
+
+# sci-geosciences/googleearth
+#required by sci-geosciences/googleearth-6.2.2.6613, required by sci-geosciences/googleearth (argument)
+# =dev-util/patchelf-0.6 ~amd64
+
+# media-video/mplayer2

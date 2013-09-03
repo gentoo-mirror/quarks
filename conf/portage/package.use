@@ -1,6 +1,45 @@
-# required by media-sound/pulseaudio-2.1-r1[udev]
-# required by media-libs/openal-1.15.1[pulseaudio]
-# required by media-video/ffmpeg-1.0.7[openal]
-# required by virtual/ffmpeg-0.10.3
-# required by media-plugins/alsa-plugins-1.0.26[ffmpeg]
-=virtual/udev-200 hwdb
+# sys-fs/cryptsetup dynamic
+dev-libs/libgcrypt static-libs
+dev-libs/libgpg-error static-libs
+dev-libs/popt static-libs
+sys-apps/util-linux static-libs
+
+sys-fs/udev extras gudev hwdb
+virtual/udev extras gudev hwdb 
+
+# x11-drivers/ati-drivers qt4
+app-emulation/wine -win64 -gstreamer
+dev-python/matplotlib wxwidgets
+
+app-emulation/libvirt qemu virt-network
+net-misc/spice-gtk -gstreamer
+
+gnome-base/gvfs gdu
+
+app-admin/conky eve
+
+media-libs/libgpod ios
+
+#required by app-text/gnome-doc-utils-0.20.6, required by gnome-doc-utils (argument)
+dev-libs/libxml2 python
+
+dev-db/sqlite secure-delete unlock-notify
+
+net-analyzer/nmap lua
+
+media-sound/pulseaudio gnome
+
+x11-misc/tint2 battery
+
+dev-lang/php pcntl gd zip
+
+sys-kernel/hardened-sources injection symlink
+
+# Don't support ruby1.9 yet
+app-editors/gvim -ruby
+app-editors/vim -ruby
+
+#required by media-video/vlc-2.0.1, required by vlc (argument)
+sys-libs/zlib minizip
+
+www-client/firefox system-cairo system-jpeg
