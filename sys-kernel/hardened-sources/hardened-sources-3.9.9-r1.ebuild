@@ -33,7 +33,7 @@ RDEPEND=">=sys-devel/gcc-4.5"
 
 pkg_setup() {
 	if use injection; then
-		UNIPATCH_LIST+=" ${FILESDIR}/wireless_injection.patch"
+		UNIPATCH_LIST+=" ${FILESDIR}/9000_wireless_injection.patch"
 	fi
 }
 
