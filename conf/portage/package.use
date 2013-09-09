@@ -8,6 +8,8 @@ sys-fs/udev extras gudev hwdb
 virtual/udev extras gudev hwdb 
 net-fs/nfs-utils nfsv41
 
+sys-boot/plymouth -openrc
+
 app-emulation/wine -win64 -gstreamer
 dev-python/matplotlib wxwidgets
 

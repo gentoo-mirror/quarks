@@ -31,7 +31,6 @@ sys-power/tpc
 # sys-power/cpupower
 
 # Shiny boot
-# sys-boot/plymouth-openrc-plugin
 sys-boot/plymouth
 
 media-gfx/gimp
