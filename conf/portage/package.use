@@ -46,6 +46,7 @@ app-editors/vim -ruby
 #required by media-video/vlc-2.0.1, required by vlc (argument)
 sys-libs/zlib minizip
 
-www-client/firefox system-cairo system-jpeg
+www-client/firefox system-cairo system-jpeg 
+app-office/libreoffice -java
 
 net-misc/networkmanager dhclient -dhcpcd -nss

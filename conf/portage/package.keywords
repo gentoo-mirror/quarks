@@ -69,11 +69,6 @@ games-util/pyfa
 lxde-base/lxdm
 x11-misc/tint2
 
-#required by dev-java/icedtea-7.2.0-r1[nsplugin], required by dev-java/icedtea (argument)
->=dev-java/icedtea-web-1.1.3-r7 ~amd64
-#required by dev-java/icedtea-web-1.1.3-r7
->=dev-java/icedtea-7.2.0-r1 ~amd64
-
 # Android
 dev-util/android-sdk-update-manager
 
