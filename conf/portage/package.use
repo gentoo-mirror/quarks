@@ -50,3 +50,7 @@ www-client/firefox system-cairo system-jpeg
 app-office/libreoffice -java
 
 net-misc/networkmanager dhclient -dhcpcd -nss
+net-misc/openvpn iproute2
+
+# Games
+games-fps/quake3-data cdinstall
