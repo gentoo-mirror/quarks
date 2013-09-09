@@ -2,10 +2,11 @@
 set -e
 
 CPUS=$(nproc)
-NEW=$(grep "Kernel Configuration" /usr/src/linux/.config | awk '{print $3}')
+
+[ "x$NEW" == "x" ] && NEW=$(grep "Kernel Configuration" /usr/src/linux/.config | awk '{print $3}')
 echo $NEW
 
-cd /usr/src/linux-${NEW}
+cd /usr/src/linux-${NEW} 
 # make clean
 # make oldconfig
 make menuconfig

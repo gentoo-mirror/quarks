@@ -6,6 +6,24 @@ sys-kernel/dracut
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
 app-admin/paxtest
+# Laptop WLAN
+sys-firmware/iwl6030-ucode
+
+# GPUs
+# Intel - https://01.org/linuxgraphics/downloads/2013/2013q2-intel-graphics-stack-release
+media-libs/mesa
+x11-libs/libva
+x11-libs/libva-intel-driver
+=x11-drivers/xf86-video-intel-2.21.9
+=sys-devel/llvm-3.3-r1 ~amd64
+=x11-libs/libdrm-2.4.46 ~amd64
+=dev-libs/libclc-0.0.1_pre20130819 ~amd64
+=sys-devel/clang-3.3-r100 ~amd64
+
+# x11-drivers/ati-drivers 
+x11-drivers/nvidia-drivers 
+# media-video/nvidia-settings
+# app-admin/eselect-opencl
 
 # AMD overclock
 sys-firmware/amd-ucode
@@ -13,7 +31,7 @@ sys-power/tpc
 # sys-power/cpupower
 
 # Shiny boot
-sys-boot/plymouth-openrc-plugin
+# sys-boot/plymouth-openrc-plugin
 sys-boot/plymouth
 
 media-gfx/gimp
@@ -48,20 +66,6 @@ games-util/pyfa
 # required by pyfa (argument)
 =dev-python/sqlalchemy-0.8.2 ~amd64
 
-
-# media-libs/mesa
-# app-admin/eselect-opengl
-# sys-devel/llvm
-# x11-proto/glproto
-# x11-libs/libdrm
-# x11-drivers/xf86-video-ati
-# media-libs/libtxc_dxtn
-
-# x11-drivers/ati-drivers 
-x11-drivers/nvidia-drivers 
-# media-video/nvidia-settings
-# app-admin/eselect-opencl
-
 #required by lxdm (argument)
 lxde-base/lxdm
 x11-misc/tint2
@@ -74,7 +78,7 @@ x11-misc/tint2
 # Android
 dev-util/android-sdk-update-manager
 
-# PenTesting
+# PenTesting/ Hacking
 #net-analyzer/metasploit
 #dev-ruby/kissfft
 #dev-ruby/msgpack
@@ -82,6 +86,14 @@ dev-util/android-sdk-update-manager
 #net-analyzer/theHarvester
 # net-analyzer/dnsrecon
 #app-forensics/regripper
+
+# Wireless
+net-wireless/aircrack-ng
+# required by net-wireless/aircrack-ng-1.2_beta1[airdrop-ng]
+# required by @selected
+# required by @world (argument)
+=net-wireless/lorcon-0.0_p20130212 ~amd64
+
 
 media-video/rtmpdump **
 
