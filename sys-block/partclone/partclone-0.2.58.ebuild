@@ -1,3 +1,4 @@
+EAPI=4
 inherit eutils
 
 DESCRIPTION="Partition cloning tool"
@@ -7,7 +8,7 @@ SRC_URI="http://sourceforge.net/projects/partclone/files/stable/${PV}/partclone_
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="xfs reiserfs reiser4 hfs fat ntfs jfs"
+IUSE="xfs reiserfs reiser4 hfs fat ntfs jfs static"
 
 RDEPEND="${common_depends}
 	sys-fs/e2fsprogs
@@ -17,7 +18,12 @@ RDEPEND="${common_depends}
 	jfs? ( sys-fs/jfsutils )
 	reiserfs? ( sys-fs/progsreiserfs )
 	reiser4? ( sys-fs/reiser4progs )
-	xfs? ( sys-fs/xfsprogs )"
+	xfs? ( sys-fs/xfsprogs )
+	static? ( sys-fs/e2fsprogs[static-libs(+)]
+		      sys-fs/xfsprogs[static-libs(+)]
+		      sys-libs/ncurses[static-libs(+)]
+		      sys-fs/ntfs3g[static-libs(+)]
+		   )"
 DEPEND=""
 
 src_unpack()
@@ -38,6 +44,7 @@ src_compile()
 	use fat && myconf="${myconf} --enable-fat"
 	use ntfs && myconf="${myconf} --enable-ntfs"
 	use jfs && myconf="${myconf} --enable-jfs"
+	use static && myconf="${myconf} --enable-static"
 
 	econf ${myconf} || die "econf failed"
 	emake || die "make failed"
