@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-CPUS=$(nproc)
-
 [ "x$NEW" == "x" ] && NEW=$(grep "Kernel Configuration" /usr/src/linux/.config | awk '{print $3}')
 echo $NEW
 
@@ -10,7 +8,7 @@ cd /usr/src/linux-${NEW}
 # make clean
 # make oldconfig
 make menuconfig
-make -j${CPUS} all
+make all ${MAKEOPTS}
 make modules_install
 
 for f in initrd vmlinuz System.map config; do

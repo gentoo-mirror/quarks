@@ -29,13 +29,14 @@ dev-libs/libxml2 python
 dev-db/sqlite secure-delete unlock-notify
 
 net-analyzer/nmap lua
+# Use gtk3 
+net-analyzer/wireshark -gtk2 -qt4
 
 media-sound/pulseaudio gnome 
 
 dev-lang/php pcntl gd zip
 
 sys-kernel/hardened-sources injection symlink
-x11-drivers/ati-drivers qt4
 media-libs/mesa r600-llvm-compiler
 sys-devel/llvm clang
 

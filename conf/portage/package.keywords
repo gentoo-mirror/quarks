@@ -1,7 +1,8 @@
 # Base 
 sys-boot/grub
 sys-fs/cryptsetup
-sys-kernel/dracut
+<sys-kernel/dracut-033
+sys-fs/mdadm
 # sys-boot/efibootmgr
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
@@ -53,7 +54,6 @@ games-emulation/advancemame
 media-gfx/dispcalgui
 
 www-client/firefox
-www-plugins/adobe-flash
 
 # EVE
 games-util/gtkevemon **
@@ -65,8 +65,6 @@ games-util/pyfa
 # required by pyfa (argument)
 =dev-python/sqlalchemy-0.8.2 ~amd64
 
-#required by lxdm (argument)
-lxde-base/lxdm
 x11-misc/tint2
 
 # Android
@@ -88,6 +86,11 @@ net-wireless/aircrack-ng
 # required by @world (argument)
 =net-wireless/lorcon-0.0_p20130212 ~amd64
 
+# Video player + editing
+media-video/ffmpeg
+media-video/avidemux
+media-libs/avidemux-core
+media-libs/avidemux-plugins
 
 media-video/rtmpdump **
 
