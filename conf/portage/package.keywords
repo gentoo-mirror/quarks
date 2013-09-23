@@ -2,7 +2,7 @@
 sys-boot/grub
 sys-fs/cryptsetup
 <sys-kernel/dracut-033
-sys-fs/mdadm
+<sys-fs/mdadm-3.3
 # sys-boot/efibootmgr
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
