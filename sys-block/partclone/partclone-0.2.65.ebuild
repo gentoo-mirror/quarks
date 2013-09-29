@@ -13,10 +13,11 @@ SRC_URI="http://github.com/Thomas-Tsai/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
-IUSE="xfs reiserfs reiser4 hfs fat ntfs jfs static"
+IUSE="btrfs reiserfs reiser4 hfs fat minix ntfs jfs static vmfs xfs"
 
 RDEPEND="${common_depends}
 	sys-fs/e2fsprogs
+	btrfs? ( sys-fs/btrfs-progs )
 	fat? ( sys-fs/dosfstools )
 	ntfs? ( sys-fs/ntfs3g )
 	hfs? ( sys-fs/hfsutils )
@@ -34,20 +35,24 @@ DEPEND=""
 src_unpack()
 {
 	unpack ${A}
+	#epatch "${FILESDIR}/${PN}-xfslib.patch"
 	cd ${S}
 }
 
 src_compile() 
 {
 	local myconf
-	myconf="${myconf} --enable-extfs --enable-ncursesw"
+	myconf="${myconf} --enable-extfs --enable-ncursesw --enable-fs-test"
 	use xfs && myconf="${myconf} --enable-xfs"
 	use reiserfs && myconf="${myconf} --enable-reiserfs"
 	use reiser4 && myconf="${myconf} --enable-reiser4"
 	use hfs && myconf="${myconf} --enable-hfsp"
-	use fat && myconf="${myconf} --enable-fat"
+	use fat && myconf="${myconf} --enable-fat --enable-exfat"
 	use ntfs && myconf="${myconf} --enable-ntfs"
+	use minix && myconf="${myconf} --enable-minix"
 	use jfs && myconf="${myconf} --enable-jfs"
+	use btrfs && myconf="${myconf} --enable-btrfs"
+	use vmfs && myconf="${myconf} --enable-vmfs"
 	use static && myconf="${myconf} --enable-static"
 
 	econf ${myconf} || die "econf failed"
