@@ -27,23 +27,11 @@ x11-drivers/nvidia-drivers
 # app-admin/eselect-opencl
 
 # AMD overclock
-sys-firmware/amd-ucode
 sys-power/tpc
 # sys-power/cpupower
 
 # Shiny boot
 sys-boot/plymouth
-
-media-gfx/gimp
-# required by media-libs/gegl-0.2.0-r2
-# required by media-gfx/gimp-2.8.6
-# required by @selected
-# required by @world (argument)
-=media-libs/babl-0.1.10-r1 ~amd64
-# required by media-gfx/gimp-2.8.6
-# required by @selected
-# required by @world (argument)
-=media-libs/gegl-0.2.0-r2 ~amd64
 
 app-emulation/wine
 app-emulation/uae
@@ -99,3 +87,5 @@ media-video/rtmpdump **
 # =dev-util/patchelf-0.6 ~amd64
 
 # media-video/mplayer2
+
+sys-block/partclone

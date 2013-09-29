@@ -55,3 +55,6 @@ net-misc/openvpn iproute2
 
 # Games
 games-fps/quake3-data cdinstall
+
+sys-block/partclone fat ntfs 
+sys-fs/xfsprogs libxfs-dev
