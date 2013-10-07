@@ -28,10 +28,7 @@ x11-libs/libva-intel-driver
 sys-power/tpc
 # sys-power/cpupower
 
-# Shiny boot
-sys-boot/plymouth
-sys-boot/plymouth-openrc-plugin
-
+# Gaming
 app-emulation/wine
 app-emulation/uae
 games-emulation/advancemame

@@ -13,8 +13,6 @@ dev-python/matplotlib wxwidgets
 app-emulation/libvirt qemu virt-network
 net-misc/spice-gtk -gstreamer
 
-gnome-base/gvfs gdu
-
 app-admin/conky eve
 x11-misc/tint2 battery tint2conf
 
