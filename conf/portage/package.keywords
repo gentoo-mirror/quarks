@@ -2,7 +2,6 @@
 sys-boot/grub
 sys-fs/cryptsetup
 <sys-kernel/dracut-033
-<sys-fs/mdadm-3.3
 # sys-boot/efibootmgr
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
@@ -17,12 +16,11 @@ x11-libs/libva
 x11-libs/libva-intel-driver
 =x11-drivers/xf86-video-intel-2.21.9
 =sys-devel/llvm-3.3-r1 ~amd64
-=x11-libs/libdrm-2.4.46 ~amd64
 =dev-libs/libclc-0.0.1_pre20130819 ~amd64
 =sys-devel/clang-3.3-r100 ~amd64
 
 # x11-drivers/ati-drivers 
-x11-drivers/nvidia-drivers 
+=x11-drivers/nvidia-drivers-325.15
 # media-video/nvidia-settings
 # app-admin/eselect-opencl
 
@@ -32,6 +30,7 @@ sys-power/tpc
 
 # Shiny boot
 sys-boot/plymouth
+sys-boot/plymouth-openrc-plugin
 
 app-emulation/wine
 app-emulation/uae
@@ -82,9 +81,20 @@ media-libs/avidemux-plugins
 
 media-video/rtmpdump **
 
-# sci-geosciences/googleearth
-#required by sci-geosciences/googleearth-6.2.2.6613, required by sci-geosciences/googleearth (argument)
-# =dev-util/patchelf-0.6 ~amd64
+# Console calendar
+app-misc/gcalcli
+# required by dev-python/google-api-python-client-1.1
+# required by app-misc/gcalcli-2.4.2
+# required by gcalcli (argument)
+=dev-python/python-gflags-2.0 ~amd64
+# required by app-misc/gcalcli-2.4.2
+# required by gcalcli (argument)
+=dev-python/google-api-python-client-1.1 ~amd64
+# required by dev-python/google-api-python-client-1.1
+# required by app-misc/gcalcli-2.4.2
+# required by gcalcli (argument)
+=dev-python/httplib2-0.8 ~amd64
+
 
 # media-video/mplayer2
 
