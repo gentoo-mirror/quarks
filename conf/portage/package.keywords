@@ -11,13 +11,13 @@ sys-firmware/iwl6030-ucode
 
 # GPUs
 # Intel - https://01.org/linuxgraphics/downloads/2013/2013q2-intel-graphics-stack-release
-media-libs/mesa
-x11-libs/libva
-x11-libs/libva-intel-driver
-=x11-drivers/xf86-video-intel-2.21.9
-=sys-devel/llvm-3.3-r1 ~amd64
-=dev-libs/libclc-0.0.1_pre20130819 ~amd64
-=sys-devel/clang-3.3-r100 ~amd64
+#media-libs/mesa
+#x11-libs/libva
+#x11-libs/libva-intel-driver
+#=x11-drivers/xf86-video-intel-2.21.9
+#=sys-devel/llvm-3.3-r1 ~amd64
+#=dev-libs/libclc-0.0.1_pre20130819 ~amd64
+#=sys-devel/clang-3.3-r100 ~amd64
 
 # x11-drivers/ati-drivers 
 =x11-drivers/nvidia-drivers-325.15
@@ -32,6 +32,15 @@ sys-power/tpc
 app-emulation/wine
 app-emulation/uae
 games-emulation/advancemame
+
+app-emulation/emul-linux-x86-baselibs
+app-emulation/emul-linux-x86-db
+app-emulation/emul-linux-x86-gtklibs
+app-emulation/emul-linux-x86-medialibs
+app-emulation/emul-linux-x86-opengl
+app-emulation/emul-linux-x86-sdl
+app-emulation/emul-linux-x86-soundlibs
+app-emulation/emul-linux-x86-xlibs
 
 # Color Management
 # media-gfx/colorhug-client

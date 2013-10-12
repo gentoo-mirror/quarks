@@ -7,7 +7,7 @@ sys-apps/util-linux static-libs
 sys-fs/eudev gudev hwdb kmod
 sys-auth/consolekit policykit
 
-app-emulation/wine -win64 -gstreamer
+app-emulation/wine -win64 -gstreamer -realtime
 dev-python/matplotlib wxwidgets
 
 app-emulation/libvirt qemu virt-network
@@ -27,7 +27,7 @@ net-analyzer/nmap lua
 # Use gtk3 
 net-analyzer/wireshark -gtk2 -qt4
 
-media-sound/pulseaudio gnome 
+media-sound/pulseaudio gnome -realtime 
 
 dev-lang/php pcntl gd zip
 
