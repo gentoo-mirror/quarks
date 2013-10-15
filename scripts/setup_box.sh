@@ -16,4 +16,4 @@ link() {
 }
 
 link "update_portage.sh update_box.sh make_kernel.sh" "/mnt/portage/overlays/quarks/scripts" "/usr/local/sbin"
-link "make.conf package.use package.keywords package.license package.mask" "/mnt/portage/overlays/quarks/conf/portage" "/etc/portage"
+link "make.conf package.use package.keywords package.license package.mask package.unmask" "/mnt/portage/overlays/quarks/conf/portage" "/etc/portage"

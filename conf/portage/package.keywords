@@ -41,6 +41,7 @@ app-emulation/emul-linux-x86-opengl
 app-emulation/emul-linux-x86-sdl
 app-emulation/emul-linux-x86-soundlibs
 app-emulation/emul-linux-x86-xlibs
+app-emulation/emul-linux-x86-qtlibs
 
 # Color Management
 # media-gfx/colorhug-client
@@ -105,3 +106,6 @@ app-misc/gcalcli
 # media-video/mplayer2
 
 sys-block/partclone
+
+# Neccessary evil
+net-im/skype

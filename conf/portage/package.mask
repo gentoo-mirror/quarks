@@ -1,6 +1,8 @@
+sys-apps/systemd
 sys-fs/udev
 sys-auth/polkit
 gnome-extra/polkit-gnome
 lxde-base/lxpolkit
 sys-auth/consolekit
 sys-auth/rtkit
+sys-fs/udisks
