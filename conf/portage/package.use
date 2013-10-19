@@ -8,6 +8,8 @@ sys-fs/eudev gudev hwdb kmod
 sys-auth/consolekit policykit
 
 app-emulation/wine -win64 -gstreamer -realtime
+virtual/opencl abi_x86_32 
+
 dev-python/matplotlib wxwidgets
 
 app-emulation/libvirt qemu virt-network

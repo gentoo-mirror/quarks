@@ -1,7 +1,7 @@
 # Base 
-sys-boot/grub
 sys-fs/cryptsetup
-<sys-kernel/dracut-033
+#<sys-kernel/dracut-033
+sys-kernel/dracut
 # sys-boot/efibootmgr
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
@@ -32,6 +32,7 @@ sys-power/tpc
 app-emulation/wine
 app-emulation/uae
 games-emulation/advancemame
+virtual/opencl
 
 app-emulation/emul-linux-x86-baselibs
 app-emulation/emul-linux-x86-db
