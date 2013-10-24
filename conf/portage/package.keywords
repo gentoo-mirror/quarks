@@ -20,7 +20,7 @@ sys-firmware/iwl6030-ucode
 #=sys-devel/clang-3.3-r100 ~amd64
 
 # x11-drivers/ati-drivers 
-=x11-drivers/nvidia-drivers-325.15
+x11-drivers/nvidia-drivers
 # media-video/nvidia-settings
 # app-admin/eselect-opencl
 

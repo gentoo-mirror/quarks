@@ -18,7 +18,7 @@ done
 cp /usr/src/linux/.config  /etc/kernel/kernel-config-${NEW} 
 make install
 
-dracut -H --force --strip /boot/initrd-${NEW} ${NEW}
+dracut --xz -H --force --strip /boot/initrd-${NEW} ${NEW}
 
 grub2-mkconfig -o /boot/grub2/grub.cfg
 

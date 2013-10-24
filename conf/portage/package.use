@@ -10,6 +10,9 @@ sys-auth/consolekit policykit
 app-emulation/wine -win64 -gstreamer -realtime
 virtual/opencl abi_x86_32 
 
+net-fs/cifs-utils upcall
+net-fs/samba winbind
+
 dev-python/matplotlib wxwidgets
 
 app-emulation/libvirt qemu virt-network
@@ -47,7 +50,6 @@ sys-libs/zlib minizip
 www-client/firefox system-cairo system-jpeg 
 app-office/libreoffice -java
 
-net-misc/networkmanager dhclient -dhcpcd -nss
 net-misc/openvpn iproute2
 
 # Games
