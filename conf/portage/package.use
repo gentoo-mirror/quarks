@@ -10,7 +10,7 @@ sys-auth/consolekit policykit
 app-emulation/wine -win64 -gstreamer -realtime
 virtual/opencl abi_x86_32 
 
-net-fs/cifs-utils upcall
+net-fs/cifs-utils upcall ads
 net-fs/samba winbind
 
 dev-python/matplotlib wxwidgets
