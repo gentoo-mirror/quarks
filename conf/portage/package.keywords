@@ -34,6 +34,9 @@ app-emulation/uae
 games-emulation/advancemame
 virtual/opencl
 
+# Video capture
+media-video/glc
+
 app-emulation/emul-linux-x86-baselibs
 app-emulation/emul-linux-x86-db
 app-emulation/emul-linux-x86-gtklibs
@@ -49,6 +52,7 @@ app-emulation/emul-linux-x86-qtlibs
 media-gfx/dispcalgui
 
 www-client/firefox
+media-libs/libpng
 
 # EVE
 games-util/gtkevemon **
