@@ -33,6 +33,7 @@ net-analyzer/nmap lua
 net-analyzer/wireshark -gtk2 -qt4
 
 media-sound/pulseaudio gnome -realtime 
+media-sound/audacity vamp sbsms
 
 dev-lang/php pcntl gd zip
 

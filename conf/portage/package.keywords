@@ -1,8 +1,9 @@
 # Base 
-sys-fs/cryptsetup
 sys-kernel/dracut
+sys-fs/cryptsetup
+app-crypt/efitools
+sys-fs/bcache-tools
 =sys-boot/plymouth-openrc-plugin-0.1.2 ~amd64
-# sys-boot/efibootmgr
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
 app-admin/paxtest

@@ -16,9 +16,12 @@ for f in initrd vmlinuz System.map config; do
 done
 
 cp /usr/src/linux/.config  /etc/kernel/kernel-config-${NEW} 
-make install
 
-dracut --xz -H --force --strip /boot/initrd-${NEW} ${NEW}
+#dracut --xz -H --force --strip /boot/initrd-${NEW} ${NEW}
+dracut --no-compress -H --force --strip /usr/src/linux/initrd.cpio ${NEW}
+make all ${MAKEOPTS}
+
+make install
 
 grub2-mkconfig -o /boot/grub2/grub.cfg
 
