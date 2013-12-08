@@ -15,10 +15,8 @@ for f in initrd vmlinuz System.map config; do
 	[ -e "/boot/$f-${NEW}" ] && mv "/boot/$f-${NEW}" "/boot/$f-${NEW}.previous"
 done
 
-cp /usr/src/linux/.config  /etc/kernel/kernel-config-${NEW} 
-
-#dracut --xz -H --force --strip /boot/initrd-${NEW} ${NEW}
-dracut --no-compress -H --force --strip /usr/src/linux/initrd.cpio ${NEW}
+dracut --xz -H --force --strip /boot/initrd-${NEW} ${NEW}
+#dracut --no-compress -H --force --strip /usr/src/linux/initrd.cpio ${NEW}
 make all ${MAKEOPTS}
 
 make install
@@ -34,3 +32,5 @@ cp -a libcpupower.so* /usr/lib
 echo "After successful boot of new kernel run:"
 echo "   root # module-rebuild rebuild"
 # eselect opengl set ati
+
+cp /usr/src/linux/.config  /etc/kernel/kernel-config-${NEW} 

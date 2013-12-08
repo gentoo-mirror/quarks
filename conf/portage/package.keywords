@@ -2,13 +2,14 @@
 sys-kernel/dracut
 sys-fs/cryptsetup
 app-crypt/efitools
-sys-fs/bcache-tools
 =sys-boot/plymouth-openrc-plugin-0.1.2 ~amd64
 # sys-boot/os-prober
 # sys-kernel/hardened-sources
 app-admin/paxtest
 # Laptop WLAN
 sys-firmware/iwl6030-ucode
+
+# sys-fs/bcache-tools
 
 # GPUs
 # Intel - https://01.org/linuxgraphics/downloads/2013/2013q2-intel-graphics-stack-release
@@ -37,16 +38,6 @@ virtual/opencl
 
 # Video capture
 media-video/glc
-
-app-emulation/emul-linux-x86-baselibs
-app-emulation/emul-linux-x86-db
-app-emulation/emul-linux-x86-gtklibs
-app-emulation/emul-linux-x86-medialibs
-app-emulation/emul-linux-x86-opengl
-app-emulation/emul-linux-x86-sdl
-app-emulation/emul-linux-x86-soundlibs
-app-emulation/emul-linux-x86-xlibs
-app-emulation/emul-linux-x86-qtlibs
 
 # Color Management
 # media-gfx/colorhug-client
@@ -108,9 +99,10 @@ app-misc/gcalcli
 # required by gcalcli (argument)
 =dev-python/httplib2-0.8 ~amd64
 
+# Graphics
+media-gfx/gimp
 
-# media-video/mplayer2
-
+# Disk Imaging
 sys-block/partclone
 
 # Neccessary evil

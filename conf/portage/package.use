@@ -4,8 +4,8 @@ dev-libs/libgpg-error static-libs
 dev-libs/popt static-libs
 sys-apps/util-linux static-libs
 
+virtual/udev gudev
 sys-fs/eudev gudev hwdb kmod
-sys-auth/consolekit policykit
 
 app-emulation/wine -win64 -gstreamer -realtime
 virtual/opencl abi_x86_32 
@@ -40,10 +40,6 @@ dev-lang/php pcntl gd zip
 sys-kernel/hardened-sources injection symlink
 media-libs/mesa r600-llvm-compiler gbm
 sys-devel/llvm clang
-
-# Don't support ruby1.9 yet
-app-editors/gvim -ruby
-app-editors/vim -ruby
 
 #required by media-video/vlc-2.0.1, required by vlc (argument)
 sys-libs/zlib minizip
