@@ -1,0 +1,128 @@
+From 8a8957b4e6c9fe153524a7b1051f3aa1b6b4b402 Mon Sep 17 00:00:00 2001
+From: Ryan Davis <iconoclasmandheresy@gmail.com>
+Date: Sat, 16 Nov 2013 00:45:53 -0800
+Subject: [PATCH 1/2] Apply hcce patch and massager for new wording
+
+---
+ dlls/crypt32/chain.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
+
+diff --git a/dlls/crypt32/chain.c b/dlls/crypt32/chain.c
+index 1a83dee..31d1c53 100644
+--- a/dlls/crypt32/chain.c
++++ b/dlls/crypt32/chain.c
+@@ -33,7 +33,10 @@ WINE_DECLARE_DEBUG_CHANNEL(chain);
+ 
+ #define DEFAULT_CYCLE_MODULUS 7
+ 
+-static HCERTCHAINENGINE CRYPT_defaultChainEngine;
++/* There are two default chain engines which correspond to HCCE_CURRENT_USER and
++ * HCCE_LOCAL_MACHINE.
++*/
++static HCERTCHAINENGINE CRYPT_defaultChainEngine[2] = { NULL, NULL };
+ 
+ /* This represents a subset of a certificate chain engine:  it doesn't include
+  * the "hOther" store described by MSDN, because I'm not sure how that's used.
+@@ -212,7 +215,7 @@ VOID WINAPI CertFreeCertificateChainEngine(HCERTCHAINENGINE hChainEngine)
+ 
+     TRACE("(%p)\n", hChainEngine);
+ 
+-    if (engine && InterlockedDecrement(&engine->ref) == 0)
++    if (engine > HCCE_LOCAL_MACHINE && InterlockedDecrement(&engine->ref) == 0)
+     {
+         CertCloseStore(engine->hWorld, 0);
+         CertCloseStore(engine->hRoot, 0);
+@@ -220,26 +223,28 @@ VOID WINAPI CertFreeCertificateChainEngine(HCERTCHAINENGINE hChainEngine)
+     }
+ }
+ 
+-static HCERTCHAINENGINE CRYPT_GetDefaultChainEngine(void)
++static HCERTCHAINENGINE CRYPT_GetDefaultChainEngine(HCERTCHAINENGINE h)
+ {
+-    if (!CRYPT_defaultChainEngine)
++    if (!CRYPT_defaultChainEngine[(int)h])
+     {
+         CERT_CHAIN_ENGINE_CONFIG config = { 0 };
+         HCERTCHAINENGINE engine;
+ 
+         config.cbSize = sizeof(config);
++        if (h == HCCE_LOCAL_MACHINE)
++            config.dwFlags = CERT_CHAIN_USE_LOCAL_MACHINE_STORE;
+         CertCreateCertificateChainEngine(&config, &engine);
+-        InterlockedCompareExchangePointer(&CRYPT_defaultChainEngine, engine,
++        InterlockedCompareExchangePointer(&CRYPT_defaultChainEngine[(int)h], engine,
+          NULL);
+-        if (CRYPT_defaultChainEngine != engine)
++        if (CRYPT_defaultChainEngine[(int)h] != engine)
+             CertFreeCertificateChainEngine(engine);
+     }
+-    return CRYPT_defaultChainEngine;
++    return CRYPT_defaultChainEngine[(int)h];
+ }
+ 
+-void default_chain_engine_free(void)
++void default_chain_engine_free(HCERTCHAINENGINE h)
+ {
+-    CertFreeCertificateChainEngine(CRYPT_defaultChainEngine);
++    CertFreeCertificateChainEngine(CRYPT_defaultChainEngine[(int)h]);
+ }
+ 
+ typedef struct _CertificateChain
+@@ -2886,11 +2891,10 @@ BOOL WINAPI CertGetCertificateChain(HCERTCHAINENGINE hChainEngine,
+         return FALSE;
+     }
+ 
+-    if (!engine)
+-        engine = CRYPT_GetDefaultChainEngine();
++    if (engine <= HCCE_LOCAL_MACHINE)
++        engine = CRYPT_GetDefaultChainEngine(engine);
+     if (TRACE_ON(chain))
+         dump_chain_para(pChainPara);
+-    /* FIXME: what about HCCE_LOCAL_MACHINE? */
+     ret = CRYPT_BuildCandidateChainFromCert(engine, pCertContext, pTime,
+      hAdditionalStore, dwFlags, &chain);
+     if (ret)
+-- 
+1.8.4.3
+
+
+From df10036a07e90f2c75c4d54d8ec462e24e314bae Mon Sep 17 00:00:00 2001
+From: Ryan Davis <iconoclasmandheresy@gmail.com>
+Date: Sat, 16 Nov 2013 23:53:49 -0800
+Subject: [PATCH 2/2] HCCE patch kinda.
+
+---
+ dlls/crypt32/crypt32_private.h | 2 +-
+ dlls/crypt32/main.c            | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/dlls/crypt32/crypt32_private.h b/dlls/crypt32/crypt32_private.h
+index 53e0834..6a4d819 100644
+--- a/dlls/crypt32/crypt32_private.h
++++ b/dlls/crypt32/crypt32_private.h
+@@ -157,7 +157,7 @@ void crypt_oid_init(void) DECLSPEC_HIDDEN;
+ void crypt_oid_free(void) DECLSPEC_HIDDEN;
+ void crypt_sip_free(void) DECLSPEC_HIDDEN;
+ void root_store_free(void) DECLSPEC_HIDDEN;
+-void default_chain_engine_free(void) DECLSPEC_HIDDEN;
++void default_chain_engine_free(HCERTCHAINENGINE) DECLSPEC_HIDDEN;
+ 
+ /* (Internal) certificate store types and functions */
+ struct WINE_CRYPTCERTSTORE;
+diff --git a/dlls/crypt32/main.c b/dlls/crypt32/main.c
+index c4f6c78..2afb702 100644
+--- a/dlls/crypt32/main.c
++++ b/dlls/crypt32/main.c
+@@ -50,7 +50,8 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD fdwReason, PVOID pvReserved)
+             crypt_oid_free();
+             crypt_sip_free();
+             root_store_free();
+-            default_chain_engine_free();
++            default_chain_engine_free(HCCE_CURRENT_USER);
++            default_chain_engine_free(HCCE_LOCAL_MACHINE);
+             if (hDefProv) CryptReleaseContext(hDefProv, 0);
+             break;
+     }
+-- 
+1.8.4.3
+
