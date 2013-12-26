@@ -15,6 +15,7 @@ SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="btrfs reiserfs reiser4 hfs fat minix ntfs jfs static vmfs xfs"
 
+# xfsprogs, see https://bugs.gentoo.org/show_bug.cgi?id=486514
 RDEPEND="${common_depends}
 	sys-fs/e2fsprogs
 	btrfs? ( sys-fs/btrfs-progs )
@@ -24,7 +25,7 @@ RDEPEND="${common_depends}
 	jfs? ( sys-fs/jfsutils )
 	reiserfs? ( sys-fs/progsreiserfs )
 	reiser4? ( sys-fs/reiser4progs )
-	xfs? ( sys-fs/xfsprogs[libxfs-dev] )
+	xfs? ( >=sys-fs/xfsprogs-3.1.11-r1 )
 	static? ( sys-fs/e2fsprogs[static-libs]
 		      sys-fs/xfsprogs[static-libs]
 		      sys-libs/ncurses[static-libs]
