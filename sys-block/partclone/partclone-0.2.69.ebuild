@@ -8,7 +8,7 @@ inherit eutils
 
 DESCRIPTION="Partition cloning tool"
 HOMEPAGE="http://partclone.org"
-SRC_URI="http://github.com/Thomas-Tsai/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="http://sourceforge.net/projects/partclone/files/stable/${PV}/partclone_${PV}.orig.tar.gz/download -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -27,10 +27,11 @@ RDEPEND="${common_depends}
 	reiser4? ( sys-fs/reiser4progs )
 	xfs? ( >=sys-fs/xfsprogs-3.1.11-r1 )
 	static? ( sys-fs/e2fsprogs[static-libs]
-		      sys-fs/xfsprogs[static-libs]
-		      sys-libs/ncurses[static-libs]
-		      sys-fs/ntfs3g[static-libs]
-		   )"
+			sys-libs/e2fsprogs-libs[static-libs]
+			sys-fs/xfsprogs[static-libs]
+			sys-libs/ncurses[static-libs]
+			sys-fs/ntfs3g[static-libs]
+		)"
 DEPEND=""
 
 src_unpack()
