@@ -1,13 +1,12 @@
 #!/bin/sh
 
 # - builds a generic image from a stage3 tarball and portage snapshot
-# - creates and uploads AMI 
 # 
 # based on work from JD Harrington https://github.com/psi/gentoo-aws
 # and Matsuu Takuto https://gist.github.com/870789
 
 #===============================================================================
-GENTOO_MIRROR="http://gentoo.arcticnetwork.ca"
+GENTOO_MIRROR="http://distfiles.gentoo.org"
 LOCAL_CACHE=/var/tmp
 IMAGE_ROOT=/mnt/gentoo
 
@@ -25,7 +24,7 @@ fetch_file() {
 	local DIGEST=$2
 	
 	FILE_NAME=$(basename ${URL})
-	SHA512=$(curl -s -S ${DIGEST} | grep -A1 -e "^# SHA512 HASH" | grep -o -E -e "^[0-9a-f]{128} *${FILE_NAME}$" | awk '{print $1}')
+	SHA512=$(curl -q -s -S ${DIGEST} | grep -A1 -e "^# SHA512 HASH" | grep -o -E -e "^[0-9a-f]{128} *${FILE_NAME}$" | awk '{print $1}')
 
 	# Check if local cache is usable
 	if [ ! -d ${LOCAL_CACHE} ] || [ ! -w ${LOCAL_CACHE} ]; then
@@ -34,7 +33,7 @@ fetch_file() {
 
 	if [ -z ${SHA512} ]; then
 		# Let's try md5sum before giving up
-		MD5=$(curl -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
+		MD5=$(curl -q -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
 		if [ -z ${MD5} ]; then
 			die "Unable to get checksum for ${FILE_NAME}, abort"
 		fi
@@ -47,6 +46,7 @@ fetch_file() {
 
 	if [ ! -z ${SHA512} ]; then
 		if [ $(sha512sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${SHA512} ]; then
+			echo "SHA512 checksum for ${FILE_NAME} verified."
 			cp ${LOCAL_CACHE}/${FILE_NAME} .
 			return 
 		else
@@ -57,6 +57,7 @@ fetch_file() {
 
 	if [ ! -z ${MD5} ]; then
 		if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
+			echo "MD5 checksum for ${FILE_NAME} verified."
 			cp ${LOCAL_CACHE}/${FILE_NAME} .
 			return 
 		else
@@ -115,38 +116,46 @@ bootstrap() {
 	if [ -d "usr" ] ; then
 		echo "There seems to be already files in ${ROOT_FS} !"
 		echo "Press <Ctrl+c> to abort, or <Return> to proceed with extracting stage3 ..."
-		read
+		read -r REPLY
 	fi
 	fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
+
+	echo "Extracting stage3 to ${ROOT_FS} ..."
 	tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage file failed"
+
 	rm -f $(basename ${STAGE_TARBALL})
-}
 
+	# Portage snapshot
 
-# setup_chroot ROOT_FS
-setup_chroot() {
-	local ROOT_FS=$1
-
-	# Import certain values from host config
-	_PORTDIR=$(. ${MAKE_CONF} && echo $PORTDIR)
-	_DISTDIR=$(. ${MAKE_CONF} && echo $DISTDIR)
-	_PKGDIR=$(. ${MAKE_CONF} && echo $PKGDIR)
-	HOST_PORTDIR=${_PORTDIR:-/usr/portage}
-	HOST_DISTDIR=${_DISTDIR:-/usr/portage/distfiles}
-	HOST_PKGDIR=${_PKGDIR:-/usr/portage/packages}
-
-	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/snapshots/portage-latest.tar.bz2"
+	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/releases/snapshots/current/portage-latest.tar.bz2"
 	if [ ${BIND_PORTAGE} = 1 ] ; then
+		if [ ! -r $MAKE_CONF ]; then
+			echo "Cannot find make.conf: $MAKE_CONF, using defaults ..."
+		else
+			_PORTDIR=$(. ${MAKE_CONF} && echo $PORTDIR)
+			_DISTDIR=$(. ${MAKE_CONF} && echo $DISTDIR)
+			_PKGDIR=$(. ${MAKE_CONF} && echo $PKGDIR)
+		fi
+		HOST_PORTDIR=${_PORTDIR:-/usr/portage}
+		HOST_DISTDIR=${_DISTDIR:-/usr/portage/distfiles}
+		HOST_PKGDIR=${_PKGDIR:-/usr/portage/packages}
 		mkdir -p ${ROOT_FS}/${HOST_PORTDIR}
 		mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${HOST_PORTDIR} || die "Error mounting ${HOST_PORTDIR}"
 	else
 		# install latest portage snapshot
 		if [ ! -d "usr/portage" ] ; then
 			fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
+			echo "Extracting latest portage snapshot to ${ROOT_FS}/usr ..."
 			tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
 			rm -f portage-latest.tar.bz2
 		fi
 	fi
+}
+
+
+# setup_chroot ROOT_FS
+setup_chroot() {
+	local ROOT_FS=$1
 
 	# resolve.conf
 	cp -L /etc/resolv.conf ${ROOT_FS}/etc/resolv.conf || die "Can't copy resolv.conf"
@@ -167,7 +176,7 @@ setup_chroot() {
 	else
 		echo "Done !"
 		echo "Press <Return> to tear down the chroot environment once you are done."
-		read
+		read -r REPLY
 	fi
 }
 
@@ -236,17 +245,12 @@ ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="server"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
-if [ ${VERBOSE} = 1 ]; then
+if [ ${VERBOSE} -eq 1 ]; then
 	set -x
 fi
 
-if [ ${INTERACTIVE} = 0 ]; then
+if [ ${INTERACTIVE} -eq 0 ]; then
 	bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
-fi
-
-if [ ! -r $MAKE_CONF ]; then
-	echo "Cannot find requested make.conf: $MAKE_CONF"
-	exit 1
 fi
 
 # From here make sure we don't leave stuff around
