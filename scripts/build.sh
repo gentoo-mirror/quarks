@@ -19,55 +19,91 @@ die() {
 }
 
 
+verify_digest() {
+	local FILE_NAME=$1
+	local TYPE=$2
+	local DIGEST=$3
+	local PURGE=$4
+
+	case $TYPE in
+		sha512)
+			FILE_DIGEST=$(sha512sum ${FILE_NAME} | awk '{print $1}') 
+			;;
+		md5)
+			FILE_DIGEST=$(md5sum ${FILE_NAME} | awk '{print $1}') 
+			;;
+		*)
+			echo "Unknown DIGEST"
+			return 1
+			;;
+	esac
+
+	if [ ${FILE_DIGEST} == ${DIGEST} ]; then
+		echo "${TYPE} checksum for ${FILE_NAME} verified."
+		return 0
+	else
+		echo "Invalid checksum for ${FILE_NAME}!"
+		[ "x${PURGE}" != "x" ] && { echo "Removing cached copy." ; rm -f ${FILE_NAME}; }
+		return 1
+	fi
+}
+
+
 fetch_file() {
 	local URL=$1
-	local DIGEST=$2
+	local DIGEST_URL=$2
 	
-	FILE_NAME=$(basename ${URL})
-	SHA512=$(curl -q -s -S ${DIGEST} | grep -A1 -e "^# SHA512 HASH" | grep -o -E -e "^[0-9a-f]{128} *${FILE_NAME}$" | awk '{print $1}')
+	local FILE_NAME=$(basename ${URL})
 
-	# Check if local cache is usable
+	local DIGEST_TYPE
+
+	# Check cache
 	if [ ! -d ${LOCAL_CACHE} ] || [ ! -w ${LOCAL_CACHE} ]; then
-		die "Local cache ${LOCAL_CACHE} unusable!"
+		echo "Cannot write to cache ${LOCAL_CACHE}" 
+		return 1
 	fi
 
-	if [ -z ${SHA512} ]; then
-		# Let's try md5sum before giving up
-		MD5=$(curl -q -s -S ${DIGEST} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
-		if [ -z ${MD5} ]; then
-			die "Unable to get checksum for ${FILE_NAME}, abort"
-		fi
-	fi
-
-	# Do we have local copy, if not download
-	if [ ! -f ${LOCAL_CACHE}/${FILE_NAME} ]; then
-		wget -O ${LOCAL_CACHE}/${FILE_NAME} ${URL} || die "Cannot download ${URL}!" 
-	fi
-
-	if [ ! -z ${SHA512} ]; then
-		if [ $(sha512sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${SHA512} ]; then
-			echo "SHA512 checksum for ${FILE_NAME} verified."
-			cp ${LOCAL_CACHE}/${FILE_NAME} .
-			return 
+	# If DIGEST requested get it
+	if [ ! -z ${DIGEST_URL} ]; then
+		DIGEST=$(curl -s -S ${DIGEST_URL} | grep -A1 -e "^# SHA512 HASH" | grep -o -E -e "^[0-9a-f]{128} *${FILE_NAME}$" | awk '{print $1}')
+		if [ -z ${DIGEST} ]; then
+			# Let's try md5sum before giving up
+			DIGEST=$(curl -s -S ${DIGEST_URL} | grep -o -E -e "^[0-9a-f]{32} *${FILE_NAME}$" | awk '{print $1}')
+			if [ -z ${DIGEST} ]; then
+				echo "Unable to get checksum for ${FILE_NAME}, abort"
+				return 2
+			fi
+			DIGEST_TYPE="md5"
 		else
-			rm -f ${LOCAL_CACHE}/${FILE_NAME}
-			die "Invalid checksum for ${LOCAL_CACHE}/${FILE_NAME}, removing cached copy."
+			DIGEST_TYPE="sha512"
 		fi
 	fi
 
-	if [ ! -z ${MD5} ]; then
-		if [ $(md5sum ${LOCAL_CACHE}/${FILE_NAME} | awk '{print $1}') = ${MD5} ]; then
-			echo "MD5 checksum for ${FILE_NAME} verified."
+	# Do we have local copy
+	if [ -f ${LOCAL_CACHE}/${FILE_NAME} ]; then
+		verify_digest ${LOCAL_CACHE}/${FILE_NAME} $DIGEST_TYPE ${DIGEST} 1
+		if [ $? -eq 0 ]; then
 			cp ${LOCAL_CACHE}/${FILE_NAME} .
-			return 
-		else
-			rm -f ${LOCAL_CACHE}/${FILE_NAME}
-			die "Invalid checksum for ${LOCAL_CACHE}/${FILE_NAME}, removing cached copy."
+			echo "Using cached ${LOCAL_CACHE}/${FILE_NAME}"
+			return 0
 		fi
 	fi
 
-	die "No checksum available for ${FILE_NAME}!"
+	# We we are here either we didnt have a copy or the cached file was invalid
+	wget -q -O ${LOCAL_CACHE}/${FILE_NAME} ${URL}
+	if [ $? -eq 0 ]; then
+		echo "Downloaded ${URL} to ${LOCAL_CACHE}/${FILE_NAME}"
 
+		verify_digest ${LOCAL_CACHE}/${FILE_NAME} $DIGEST_TYPE ${DIGEST} 1
+		if [ $? -ne 0 ]; then
+			echo "Could not get a verified version of ${FILE_NAME}"
+			return 3
+		fi
+		cp ${LOCAL_CACHE}/${FILE_NAME} .
+	else
+		echo "Cannot download ${URL}!"
+		return 4
+	fi
 }
 
 
@@ -111,22 +147,23 @@ bootstrap() {
 	[ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
 	[ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
 
-	# install stage 3
 	cd ${ROOT_FS}
+
+	# first install stage 3
 	if [ -d "usr" ] ; then
 		echo "There seems to be already files in ${ROOT_FS} !"
-		echo "Press <Ctrl+c> to abort, or <Return> to proceed with extracting stage3 ..."
+		echo "Press <Ctrl+c> to abort, or <Return> to proceed without extracting stage3 ..."
 		read -r REPLY
+	else
+		fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS" || die "Cannot get ${STAGE_TARBALL}"
+
+		echo "Extracting stage3 to ${ROOT_FS} ..."
+		tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage3 failed"
+
+		rm -f $(basename ${STAGE_TARBALL})
 	fi
-	fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS"
-
-	echo "Extracting stage3 to ${ROOT_FS} ..."
-	tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage file failed"
-
-	rm -f $(basename ${STAGE_TARBALL})
 
 	# Portage snapshot
-
 	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/releases/snapshots/current/portage-latest.tar.bz2"
 	if [ ${BIND_PORTAGE} = 1 ] ; then
 		if [ ! -r $MAKE_CONF ]; then
@@ -143,7 +180,11 @@ bootstrap() {
 		mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${HOST_PORTDIR} || die "Error mounting ${HOST_PORTDIR}"
 	else
 		# install latest portage snapshot
-		if [ ! -d "usr/portage" ] ; then
+		if [ -d "usr/portage" ] ; then
+			echo "There seems to be already portage files!"
+			echo "Press <Ctrl+c> to abort, or <Return> to proceed without extracting portage ..."
+			read -r REPLY
+		else
 			fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
 			echo "Extracting latest portage snapshot to ${ROOT_FS}/usr ..."
 			tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
@@ -207,7 +248,7 @@ OPTIONS:
 -r chroot location (default $IMAGE_ROOT )
 -c local cache (default $LOCAL_CACHE)
 -b bind mount host portage tree 
--i interactive, setting up chroot and enter it, skip extracting stage3, portage, etc.
+-i interactive, after setting up chroot and enter it
 -m make.conf to source portage location,etc. defaults to /etc/portage/make.conf 
 -v Verbose
 EOF
@@ -249,9 +290,7 @@ if [ ${VERBOSE} -eq 1 ]; then
 	set -x
 fi
 
-if [ ${INTERACTIVE} -eq 0 ]; then
-	bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
-fi
+bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
 
 # From here make sure we don't leave stuff around
 trap "cleanup ${IMAGE_ROOT}" INT TERM EXIT
