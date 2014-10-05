@@ -38,7 +38,7 @@ verify_digest() {
 			;;
 	esac
 
-	if [ ${FILE_DIGEST} == ${DIGEST} ]; then
+	if [ "${FILE_DIGEST}" = "${DIGEST}" ]; then
 		echo "${TYPE} checksum for ${FILE_NAME} verified."
 		return 0
 	else
@@ -135,14 +135,12 @@ bootstrap() {
 	elif [ "${PROFILE}" = "hardened-no-multilib" ] ; then
 		LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${STAGE_ARCH}-hardened+nomultilib.txt"
 		ESELECT_PROFILE="hardened/linux/${ARCH}/no-multilib"
-	elif [ "${PROFILE}" = "server" ] ; then
+	elif [ "${PROFILE}" = "default" ] ; then
 		LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${STAGE_ARCH}.txt"
-		ESELECT_PROFILE="default/linux/${ARCH}/10.0/no-multilib"
+		ESELECT_PROFILE="default/linux/${ARCH}/13.0"
 	else
 		die "Unknown profile!"
 	fi
-
-	STAGE_TARBALL=${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
 
 	[ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
 	[ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
@@ -155,6 +153,8 @@ bootstrap() {
 		echo "Press <Ctrl+c> to abort, or <Return> to proceed without extracting stage3 ..."
 		read -r REPLY
 	else
+		STAGE_TARBALL=${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
+
 		fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS" || die "Cannot get ${STAGE_TARBALL}"
 
 		echo "Extracting stage3 to ${ROOT_FS} ..."
@@ -201,23 +201,40 @@ setup_chroot() {
 	# resolve.conf
 	cp -L /etc/resolv.conf ${ROOT_FS}/etc/resolv.conf || die "Can't copy resolv.conf"
 
-	# Remount pseudo filesystems
-	mount --bind /dev ${ROOT_FS}/dev || die "Error mounting /dev"
-	mount --bind /sys ${ROOT_FS}/sys || die "Error mounting /sys"
-	mount --bind /proc ${ROOT_FS}/proc || die "Error mounting /proc"
+	# mount pseudo filesystems
+	mount -t proc none ${ROOT_FS}/proc || die "Error mounting /proc"
+	mount --rbind /dev ${ROOT_FS}/dev || die "Error mounting /dev"
+	mount --rbind /sys ${ROOT_FS}/sys || die "Error mounting /sys"
+}
+
+
+# Actually prepare the install script running within chroot
+# and run it
+install_gentoo() {
+	local ROOT_FS=$1
+
+	if [ ${INTERACTIVE} = 1 ]; then
+		echo "Done. Entering chroot environment. Good luck..."
+		chroot ${ROOT_FS} /bin/bash
+	else
+	# Install make.conf
+
+	# emerge --sync --quiet
+
+	# eselect profile
+
+	# Set Timezone
+
+	# Configure locales
 
 	# Compile own kernel later
 	# boot + kernel + lib/modules
 
-	# etc/portage/*
-
-	if [ ${INTERACTIVE} = 1 ]; then
-		echo "Done. Entering chroot environment..."
-		chroot ${ROOT_FS} /bin/bash
-	else
+	# /etc/fstab
 		echo "Done !"
 		echo "Press <Return> to tear down the chroot environment once you are done."
 		read -r REPLY
+
 	fi
 }
 
@@ -225,11 +242,17 @@ setup_chroot() {
 # Clean up host
 cleanup() {
 	local ROOT_FS=$1
-	umount ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
+	umount ${ROOT_FS}/dev/pts ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
 	
 	if [ ${BIND_PORTAGE} != 0 ]; then
 		umount ${ROOT_FS}/${HOST_PORTDIR}
+	else
+		rm -rf ${ROOT_FS}/usr/portage/distfiles/*
 	fi
+
+	# Clean up chroot
+	rm -rf ${ROOT_FS}/tmp/*
+	rm -rf ${ROOT_FS}/var/tmp/*
 }
 
 
@@ -243,22 +266,17 @@ This script builds a generic gentoo stage3 image
 OPTIONS:
 -h Show this message
 -a arch, either i686 or x86_64, defaults to uname -m
--p profile, either hardened or hardened-no-multilib or server(default)
+-p profile, [ hardened | hardened-no-multilib | default *]
 -t The timezone to use, default to GMT
 -r chroot location (default $IMAGE_ROOT )
 -c local cache (default $LOCAL_CACHE)
--b bind mount host portage tree 
--i interactive, after setting up chroot and enter it
+-b bind mount host portage tree, rather than download and install snapshot 
+-i interactive, enter chroot only, do NOT run install script
 -m make.conf to source portage location,etc. defaults to /etc/portage/make.conf 
 -v Verbose
 EOF
 }
 
-
-# Do some sanity checks first
-if [ "$(id -u)" != "0" ]; then
-	die "Sorry, but we need root permissions to create DEVICE nodes etc.!"
-fi
 
 VERBOSE=0
 BIND_PORTAGE=0
@@ -282,8 +300,13 @@ while getopts ":a:p:t:r:c:m:bvhi" OPTIONS; do
 	esac
 done
 
+# Do some sanity checks first
+if [ "$(id -u)" != "0" ]; then
+	die "Sorry, but we need root permissions to create DEVICE nodes etc.!"
+fi
+
 ARCH=${ARCH-"$(uname -m)"}
-PROFILE=${PROFILE="server"}
+PROFILE=${PROFILE="default"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
 if [ ${VERBOSE} -eq 1 ]; then
@@ -292,7 +315,8 @@ fi
 
 bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
 
-# From here make sure we don't leave stuff around
+# From here make sure we don't leave stuff around on the host
 trap "cleanup ${IMAGE_ROOT}" INT TERM EXIT
 
 setup_chroot ${IMAGE_ROOT}
+install_gentoo ${IMAGE_ROOT}
