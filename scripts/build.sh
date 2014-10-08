@@ -8,7 +8,7 @@
 #===============================================================================
 GENTOO_MIRROR="http://distfiles.gentoo.org"
 LOCAL_CACHE=/var/tmp
-IMAGE_ROOT=/mnt/gentoo
+CHROOT=/mnt/gentoo
 
 
 set -o nounset
@@ -107,57 +107,25 @@ fetch_file() {
 }
 
 
-# bootstrap ROOT_FS PROFILE ARCH
+# bootstrap, download stage3 and portage snapshot
 bootstrap() {
-	local ROOT_FS=$1
-	local PROFILE=$2
-	local ARCH=$3
 
-	local STAGE_PATH
-	local STAGE_ARCH
-	local LATEST_STAGE_FILE
-	local ESELECT_PROFILE
+	[ -d ${CHROOT} ] || die "${CHROOT} does not exists"
+	[ -w ${CHROOT} ] || die "${CHROOT} isn't writable"
 
-	if [ "${ARCH}" = "i686" ] ; then
-		STAGE_ARCH=${ARCH}
-		# Why do they use x86 here ? :(
-		STAGE_PATH="${GENTOO_MIRROR}/releases/x86/autobuilds"
-	elif [ "${ARCH}" = "x86_64" ] ; then
-		STAGE_ARCH="amd64"
-		STAGE_PATH="${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds"
-	else
-		die "Unknown architecture!"
-	fi
-
-	if [ "${PROFILE}" = "hardened" ] ; then
-		LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${STAGE_ARCH}-hardened.txt"
-		ESELECT_PROFILE="hardened/linux/${ARCH}"
-	elif [ "${PROFILE}" = "hardened-no-multilib" ] ; then
-		LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${STAGE_ARCH}-hardened+nomultilib.txt"
-		ESELECT_PROFILE="hardened/linux/${ARCH}/no-multilib"
-	elif [ "${PROFILE}" = "default" ] ; then
-		LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${STAGE_ARCH}.txt"
-		ESELECT_PROFILE="default/linux/${ARCH}/13.0"
-	else
-		die "Unknown profile!"
-	fi
-
-	[ -d ${ROOT_FS} ] || die "${ROOT_FS} does not exists"
-	[ -w ${ROOT_FS} ] || die "${ROOT_FS} isn't writable"
-
-	cd ${ROOT_FS}
+	cd ${CHROOT}
 
 	# first install stage 3
 	if [ -d "usr" ] ; then
-		echo "There seems to be already files in ${ROOT_FS} !"
+		echo "There seems to be already files in ${CHROOT} !"
 		echo "Press <Ctrl+c> to abort, or <Return> to proceed without extracting stage3 ..."
 		read -r REPLY
 	else
-		STAGE_TARBALL=${GENTOO_MIRROR}/releases/${STAGE_ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
+		STAGE_TARBALL=${GENTOO_MIRROR}/releases/${ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
 
 		fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS" || die "Cannot get ${STAGE_TARBALL}"
 
-		echo "Extracting stage3 to ${ROOT_FS} ..."
+		echo "Extracting stage3 to ${CHROOT} ..."
 		tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage3 failed"
 
 		rm -f $(basename ${STAGE_TARBALL})
@@ -168,8 +136,8 @@ bootstrap() {
 	_PORTAGE_MOUNTED=0
 
 	if [ "x${BIND_PORTAGE}" != "x" -a -d ${BIND_PORTAGE} ] ; then
-		mkdir -p ${ROOT_FS}/usr/portage
-		mount --bind ${BIND_PORTAGE} ${ROOT_FS}/usr/portage || die "Error mounting ${BIND_PORTAGE}"
+		mkdir -p ${CHROOT}/usr/portage
+		mount --bind ${BIND_PORTAGE} ${CHROOT}/usr/portage || die "Error mounting ${BIND_PORTAGE}"
 
 		# Remember we mounted portage
 		_PORTAGE_MOUNTED=1
@@ -181,42 +149,65 @@ bootstrap() {
 			read -r REPLY
 		else
 			fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
-			echo "Extracting latest portage snapshot to ${ROOT_FS}/usr ..."
-			tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${ROOT_FS}/usr" || die "Extracting portage snapshot failed"
+			echo "Extracting latest portage snapshot to ${CHROOT}/usr ..."
+			tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${CHROOT}/usr" || die "Extracting portage snapshot failed"
 			rm -f portage-latest.tar.bz2
 		fi
 	fi
 }
 
 
-# setup_chroot ROOT_FS
+# setup_chroot CHROOT
 setup_chroot() {
-	local ROOT_FS=$1
-
-	# resolve.conf
-	cp -L /etc/resolv.conf ${ROOT_FS}/etc/resolv.conf || die "Can't copy resolv.conf"
 
 	# mount pseudo filesystems
-	mount -t proc none ${ROOT_FS}/proc || die "Error mounting /proc"
-	mount --rbind /dev ${ROOT_FS}/dev || die "Error mounting /dev"
-	mount --rbind /sys ${ROOT_FS}/sys || die "Error mounting /sys"
+	mount -t proc none ${CHROOT}/proc || die "Error mounting /proc"
+	mount --rbind /dev ${CHROOT}/dev || die "Error mounting /dev"
+	mount --rbind /sys ${CHROOT}/sys || die "Error mounting /sys"
 }
 
 
 # Actually prepare the install script running within chroot
 # and run it
 install_gentoo() {
-	local ROOT_FS=$1
 
 	if [ ${INTERACTIVE} = 1 ]; then
-		echo "Done. Entering chroot environment. Good luck..."
-		chroot ${ROOT_FS} /bin/bash
+		echo "Done. Entering chroot environment. All yours..."
+		chroot ${CHROOT} /bin/bash
 	else
-	# Install make.conf
+		# resolve.conf
+		echo "Copy resolv.conf from host"
+		cp -L /etc/resolv.conf ${CHROOT}/etc/resolv.conf || die "Can't copy resolv.conf"
 
-	# emerge --sync --quiet
+		# Install make.conf
+		if [ "x${MAKE_CONF}" != "x" ]; then
+			[ -r ${MAKE_CONF} ] || die "Cannot read ${MAKE_CONF}"
 
-	# eselect profile
+			echo "Using custom make.conf"
+			cp ${MAKE_CONF} ${CHROOT}/etc/portage/ 
+		fi
+
+		# From here we create the install script and execute it within the chroot at the end
+		cat << 'EOF' > ${CHROOT}/tmp/install.sh
+#!/bin/bash
+set -x
+
+source /etc/profile
+export PS1="(chroot) $PS1"
+EOF
+		# Sync portage if not mounted
+		if [ ${_PORTAGE_MOUNTED} = 0 ]; then
+		cat << 'EOF' >> ${CHROOT}/tmp/install.sh
+echo "Syncing portage snapshot..."
+emerge -p --sync --quiet
+EOF
+		fi
+
+		# eselect profile
+		cat << EOF >> ${CHROOT}/tmp/install.sh
+echo "Setting profile to ${ESELECT_PROFILE}"
+eselect profile set ${ESELECT_PROFILE}
+EOF
 
 	# Set Timezone
 
@@ -226,6 +217,9 @@ install_gentoo() {
 	# boot + kernel + lib/modules
 
 	# /etc/fstab
+		chmod 755 ${CHROOT}/tmp/install.sh
+		chroot ${CHROOT} /tmp/install.sh
+
 		echo "Done !"
 		echo "Press <Return> to tear down the chroot environment once you are done."
 		read -r REPLY
@@ -236,18 +230,17 @@ install_gentoo() {
 
 # Clean up host
 cleanup() {
-	local ROOT_FS=$1
-	umount ${ROOT_FS}/dev/pts ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
+	umount ${CHROOT}/dev/pts ${CHROOT}/dev ${CHROOT}/sys ${CHROOT}/proc
 	
 	if [ ${_PORTAGE_MOUNTED} != 0 ]; then
-		umount ${ROOT_FS}/usr/portage
+		umount ${CHROOT}/usr/portage
 	else
-		rm -rf ${ROOT_FS}/usr/portage/distfiles/*
+		rm -rf ${CHROOT}/usr/portage/distfiles/*
 	fi
 
 	# Clean up chroot
-	rm -rf ${ROOT_FS}/tmp/*
-	rm -rf ${ROOT_FS}/var/tmp/*
+	rm -rf ${CHROOT}/tmp/*
+	rm -rf ${CHROOT}/var/tmp/*
 }
 
 
@@ -263,7 +256,7 @@ OPTIONS:
 -a arch, either i686 or x86_64, defaults to uname -m
 -p profile, [ hardened | hardened-no-multilib | default *]
 -t The timezone to use, default to GMT
--r chroot location (default $IMAGE_ROOT )
+-r chroot location (default $CHROOT )
 -c local cache (default $LOCAL_CACHE)
 -b bind mount portage tree from, instead of downloading portage snapshot
 -i interactive, enter chroot only, do NOT run install script
@@ -275,7 +268,7 @@ EOF
 
 DEBUG=0
 INTERACTIVE=0
-MAKE_CONF="/etc/portage/make.conf"
+MAKE_CONF=""
 BIND_PORTAGE=""
 while getopts ":a:p:t:r:c:m:b:dhi" OPTIONS; do
 	case $OPTIONS in
@@ -284,7 +277,7 @@ while getopts ":a:p:t:r:c:m:b:dhi" OPTIONS; do
 		t ) TIMEZONE=$OPTARG;;
 		d ) DEBUG=1;;
 		b ) BIND_PORTAGE=$OPTARG;;
-		r ) IMAGE_ROOT=$OPTARG;;
+		r ) CHROOT=$OPTARG;;
 		c ) LOCAL_CACHE=$OPTARG;;
 		i ) INTERACTIVE=1;;
 		m ) MAKE_CONF=$OPTARG;;
@@ -304,14 +297,40 @@ ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="default"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
+if [ "${ARCH}" = "i686" ] ; then
+	# Why do they use x86 here ? :(
+	STAGE_PATH="${GENTOO_MIRROR}/releases/x86/autobuilds"
+elif [ "${ARCH}" = "x86_64" ] ; then
+	ARCH="amd64"
+	STAGE_PATH="${GENTOO_MIRROR}/releases/${ARCH}/autobuilds"
+elif [ "${ARCH}" = "amd64" ] ; then
+	STAGE_PATH="${GENTOO_MIRROR}/releases/${ARCH}/autobuilds"
+else
+	die "Unknown architecture!"
+fi
+
+if [ "${PROFILE}" = "hardened" ] ; then
+	LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${ARCH}-hardened.txt"
+	ESELECT_PROFILE="hardened/linux/${ARCH}"
+elif [ "${PROFILE}" = "hardened-no-multilib" ] ; then
+	LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${ARCH}-hardened+nomultilib.txt"
+	ESELECT_PROFILE="hardened/linux/${ARCH}/no-multilib"
+elif [ "${PROFILE}" = "default" ] ; then
+	LATEST_STAGE_FILE="${STAGE_PATH}/latest-stage3-${ARCH}.txt"
+	ESELECT_PROFILE="default/linux/${ARCH}/13.0"
+else
+	die "Unknown profile!"
+fi
+
 if [ ${DEBUG} -eq 1 ]; then
 	set -x
 fi
 
-bootstrap ${IMAGE_ROOT} ${PROFILE} ${ARCH}
+bootstrap 
 
 # From here make sure we don't leave stuff around on the host
-trap "cleanup ${IMAGE_ROOT}" INT TERM EXIT
+trap "cleanup" INT TERM EXIT
 
-setup_chroot ${IMAGE_ROOT}
-install_gentoo ${IMAGE_ROOT}
+setup_chroot
+
+install_gentoo
