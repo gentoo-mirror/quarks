@@ -165,19 +165,14 @@ bootstrap() {
 
 	# Portage snapshot
 	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/releases/snapshots/current/portage-latest.tar.bz2"
-	if [ ${BIND_PORTAGE} = 1 ] ; then
-		if [ ! -r $MAKE_CONF ]; then
-			echo "Cannot find make.conf: $MAKE_CONF, using defaults ..."
-		else
-			_PORTDIR=$(. ${MAKE_CONF} && echo $PORTDIR)
-			_DISTDIR=$(. ${MAKE_CONF} && echo $DISTDIR)
-			_PKGDIR=$(. ${MAKE_CONF} && echo $PKGDIR)
-		fi
-		HOST_PORTDIR=${_PORTDIR:-/usr/portage}
-		HOST_DISTDIR=${_DISTDIR:-/usr/portage/distfiles}
-		HOST_PKGDIR=${_PKGDIR:-/usr/portage/packages}
-		mkdir -p ${ROOT_FS}/${HOST_PORTDIR}
-		mount --bind ${HOST_PORTDIR} ${ROOT_FS}/${HOST_PORTDIR} || die "Error mounting ${HOST_PORTDIR}"
+	_PORTAGE_MOUNTED=0
+
+	if [ "x${BIND_PORTAGE}" != "x" -a -d ${BIND_PORTAGE} ] ; then
+		mkdir -p ${ROOT_FS}/usr/portage
+		mount --bind ${BIND_PORTAGE} ${ROOT_FS}/usr/portage || die "Error mounting ${BIND_PORTAGE}"
+
+		# Remember we mounted portage
+		_PORTAGE_MOUNTED=1
 	else
 		# install latest portage snapshot
 		if [ -d "usr/portage" ] ; then
@@ -244,8 +239,8 @@ cleanup() {
 	local ROOT_FS=$1
 	umount ${ROOT_FS}/dev/pts ${ROOT_FS}/dev ${ROOT_FS}/sys ${ROOT_FS}/proc
 	
-	if [ ${BIND_PORTAGE} != 0 ]; then
-		umount ${ROOT_FS}/${HOST_PORTDIR}
+	if [ ${_PORTAGE_MOUNTED} != 0 ]; then
+		umount ${ROOT_FS}/usr/portage
 	else
 		rm -rf ${ROOT_FS}/usr/portage/distfiles/*
 	fi
@@ -261,7 +256,7 @@ usage() {
 cat << EOF
 Usage: $0 [options]
 
-This script builds a generic gentoo stage3 image
+This script builds a full Gentoo chroot
 
 OPTIONS:
 -h Show this message
@@ -270,25 +265,25 @@ OPTIONS:
 -t The timezone to use, default to GMT
 -r chroot location (default $IMAGE_ROOT )
 -c local cache (default $LOCAL_CACHE)
--b bind mount host portage tree, rather than download and install snapshot 
+-b bind mount portage tree from, instead of downloading portage snapshot
 -i interactive, enter chroot only, do NOT run install script
--m make.conf to source portage location,etc. defaults to /etc/portage/make.conf 
--v Verbose
+-m use custom make.conf
+-d debug (set -x)
 EOF
 }
 
 
-VERBOSE=0
-BIND_PORTAGE=0
+DEBUG=0
 INTERACTIVE=0
 MAKE_CONF="/etc/portage/make.conf"
-while getopts ":a:p:t:r:c:m:bvhi" OPTIONS; do
+BIND_PORTAGE=""
+while getopts ":a:p:t:r:c:m:b:dhi" OPTIONS; do
 	case $OPTIONS in
 		a ) ARCH=$OPTARG;;
 		p ) PROFILE=$OPTARG;;
 		t ) TIMEZONE=$OPTARG;;
-		v ) VERBOSE=1;;
-		b ) BIND_PORTAGE=1;;
+		d ) DEBUG=1;;
+		b ) BIND_PORTAGE=$OPTARG;;
 		r ) IMAGE_ROOT=$OPTARG;;
 		c ) LOCAL_CACHE=$OPTARG;;
 		i ) INTERACTIVE=1;;
@@ -309,7 +304,7 @@ ARCH=${ARCH-"$(uname -m)"}
 PROFILE=${PROFILE="default"}
 TIMEZONE=${TIMEZONE-"GMT"}
 
-if [ ${VERBOSE} -eq 1 ]; then
+if [ ${DEBUG} -eq 1 ]; then
 	set -x
 fi
 
