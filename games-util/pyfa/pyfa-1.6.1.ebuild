@@ -72,7 +72,6 @@ src_install() {
 
 	insinto /usr/share/${PN}
 	doins -r staticdata
-	dodoc readme.txt
 	insinto /usr/share/icons/hicolor/32x32/apps
 	doins icons/pyfa.png
 	insinto /usr/share/icons/hicolor/64x64/apps
