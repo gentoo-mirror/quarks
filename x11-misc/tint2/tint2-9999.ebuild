@@ -1,31 +1,22 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/x11-misc/tint2/tint2-0.11-r1.ebuild,v 1.5 2012/09/11 17:38:41 idl0r Exp $
+# $Header: x11-misc/tint2/tint2-9999.ebuild,v 1.6 2014/10/31 17:38:41 -tclover Exp $
 
-EAPI="3"
+EAPI=5
 
-inherit cmake-utils eutils
-
-if [[ ${PV} == "9999" ]] ; then
-	ESVN_REPO_URI="http://tint2.googlecode.com/svn/trunk"
-	SRC_URI=""
-	KEYWORDS="~amd64 ~x86"
-	inherit subversion
-else
-	MY_P="${PN}-${PV/_/-}"
-	SRC_URI="http://tint2.googlecode.com/files/${MY_P}.tar.bz2"
-	KEYWORDS="amd64 x86"
-	S="${WORKDIR}/${MY_P}"
-fi
+inherit eutils cmake-utils subversion
 
 DESCRIPTION="A lightweight panel/taskbar"
 HOMEPAGE="http://code.google.com/p/tint2/"
+ESVN_REPO_URI="http://tint2.googlecode.com/svn/trunk/"
+SRC_URI="https://dl.dropbox.com/s/gmko5d6sy8qjpao/tint2patchfiles.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="examples tint2conf"
+KEYWORDS="amd64 x86"
+IUSE="battery examples tint2conf"
 
-COMMON_DEPEND="dev-libs/glib:2
+DEPEND="dev-libs/glib:2
 	x11-libs/cairo
 	x11-libs/pango[X]
 	x11-libs/libX11
@@ -34,35 +25,48 @@ COMMON_DEPEND="dev-libs/glib:2
 	x11-libs/libXcomposite
 	x11-libs/libXrender
 	x11-libs/libXrandr
-	media-libs/imlib2[X]"
-DEPEND="${COMMON_DEPEND}
+	media-libs/imlib2[X]
 	virtual/pkgconfig
 	x11-proto/xineramaproto"
+
 RDEPEND="${COMMON_DEPEND}
 	tint2conf? ( x11-misc/tintwizard )"
 
-src_prepare() {
-	if [[ ${PV} == "9999" ]] ; then
-		epatch "${FILESDIR}/gtk-icon-cache.sandbox.patch"
-	else
-		epatch "${FILESDIR}/battery_segfault.patch" # bug 343963
-	fi
+PATCHES=(
+	"${WORKDIR}"/freespace.patch
+	"${WORKDIR}"/launcher_apps_dir-v2.patch
+	"${WORKDIR}"/src-task-align.patch
+)
+
+src_unpack()
+{
+	subversion_src_unpack
+	unpack "${A}"
 }
 
-src_configure() {
-	local mycmakeargs=( 
-		-DBATTERY=ON
+src_prepare()
+{
+	subversion_src_prepare
+	cmake-utils_src_prepare
+}
+
+src_configure()
+{
+	local mycmakeargs=(
+		$(cmake-utils_use_enable battery BATTERY)
 		$(cmake-utils_use_enable examples EXAMPLES)
 		$(cmake-utils_use_enable tint2conf TINT2CONF)
 
 		# bug 296890
 		"-DDOCDIR=/usr/share/doc/${PF}"
 	)
-
 	cmake-utils_src_configure
 }
 
-src_install() {
+src_install()
+{
 	cmake-utils_src_install
 	rm -f "${D}/usr/bin/tintwizard.py"
+	dodoc
 }
+
