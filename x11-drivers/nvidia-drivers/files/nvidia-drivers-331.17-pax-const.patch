@@ -1,0 +1,41 @@
+--- 1/kernel/nv_uvm_interface.c
++++ 1/kernel/nv_uvm_interface.c
+@@ -384,21 +384,23 @@
+         return UVM_ERR_INVALID_ARGUMENT;
+     }
+ 
+-    g_nvKernelProvider.sessionCreate = nvUvmInterfaceSessionCreate;
+-    g_nvKernelProvider.sessionDestroy = nvUvmInterfaceSessionDestroy;
+-    g_nvKernelProvider.addressSpaceCreate = nvUvmInterfaceAddressSpaceCreate;
+-    g_nvKernelProvider.addressSpaceCreateMirrored = nvUvmInterfaceAddressSpaceCreateMirrored;
+-    g_nvKernelProvider.addressSpaceDestroy = nvUvmInterfaceAddressSpaceDestroy;
+-    g_nvKernelProvider.allocGpuMemoryFB = nvUvmInterfaceMemoryAllocFB;
+-    g_nvKernelProvider.allocGpuMemorySys = nvUvmInterfaceMemoryAllocSys;
+-    g_nvKernelProvider.freeGpuMemory = nvUvmInterfaceMemoryFree;
+-    g_nvKernelProvider.cpuMap = nvUvmInterfaceMemoryCpuMap;
+-    g_nvKernelProvider.cpuUnmap = nvUvmInterfaceMemoryCpuUnMap;
+-    g_nvKernelProvider.channelAllocate = nvUvmInterfaceChannelAllocate;
+-    g_nvKernelProvider.channelDestroy  = nvUvmInterfaceChannelDestroy;
+-    g_nvKernelProvider.channelTranslateError = nvUvmInterfaceChannelTranslateError;
+-    g_nvKernelProvider.copyEngineAllocate = nvUvmInterfaceCopyEngineAllocate;
+-    g_nvKernelProvider.getAttachedUuids = nvUvmInterfaceGetAttachedUuids;
++    pax_open_kernel();
++    *(void **)&g_nvKernelProvider.sessionCreate = nvUvmInterfaceSessionCreate;
++    *(void **)&g_nvKernelProvider.sessionDestroy = nvUvmInterfaceSessionDestroy;
++    *(void **)&g_nvKernelProvider.addressSpaceCreate = nvUvmInterfaceAddressSpaceCreate;
++    *(void **)&g_nvKernelProvider.addressSpaceCreateMirrored = nvUvmInterfaceAddressSpaceCreateMirrored;
++    *(void **)&g_nvKernelProvider.addressSpaceDestroy = nvUvmInterfaceAddressSpaceDestroy;
++    *(void **)&g_nvKernelProvider.allocGpuMemoryFB = nvUvmInterfaceMemoryAllocFB;
++    *(void **)&g_nvKernelProvider.allocGpuMemorySys = nvUvmInterfaceMemoryAllocSys;
++    *(void **)&g_nvKernelProvider.freeGpuMemory = nvUvmInterfaceMemoryFree;
++    *(void **)&g_nvKernelProvider.cpuMap = nvUvmInterfaceMemoryCpuMap;
++    *(void **)&g_nvKernelProvider.cpuUnmap = nvUvmInterfaceMemoryCpuUnMap;
++    *(void **)&g_nvKernelProvider.channelAllocate = nvUvmInterfaceChannelAllocate;
++    *(void **)&g_nvKernelProvider.channelDestroy  = nvUvmInterfaceChannelDestroy;
++    *(void **)&g_nvKernelProvider.channelTranslateError = nvUvmInterfaceChannelTranslateError;
++    *(void **)&g_nvKernelProvider.copyEngineAllocate = nvUvmInterfaceCopyEngineAllocate;
++    *(void **)&g_nvKernelProvider.getAttachedUuids = nvUvmInterfaceGetAttachedUuids;
++    pax_close_kernel();
+ 
+     *ppGpuProvider = &g_nvKernelProvider;
+     g_pNvUvmEvents = importedUvmOps;
