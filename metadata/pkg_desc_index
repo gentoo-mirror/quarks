@@ -1,6 +1,7 @@
 app-backup/duplicity 0.7.02: Secure backup system using gnupg to encrypt data
 app-forensics/regripper 20111118: Perl scripts to parse Windows registry files
 app-misc/dradis 2.8.0: A framework for effective information sharing
+dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 games-util/gtkevemon 9999: A standalone skill monitoring application for EVE Online
 games-util/pyfa 1.13.2: Python Fitting Assistant - a ship fitting application for EVE Online
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
