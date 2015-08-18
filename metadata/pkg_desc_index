@@ -1,5 +1,5 @@
 app-backup/duplicity 0.7.02: Secure backup system using gnupg to encrypt data
-app-forensics/regripper 20111118: Perl scripts to parse Windows registry files
+app-forensics/regripper 9999: Perl scripts to parse Windows registry files
 app-misc/dradis 2.8.0: A framework for effective information sharing
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 games-util/gtkevemon 9999: A standalone skill monitoring application for EVE Online
