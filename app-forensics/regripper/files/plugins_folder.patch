@@ -1,17 +1,12 @@
---- rip.pl.orig	2011-12-26 13:54:37.866629587 -0800
-+++ rip.pl	2011-12-26 13:55:10.854628885 -0800
-@@ -40,6 +40,7 @@
-                    : (@path = split(/\//,$0));
- $str =~ s/($path[scalar(@path) - 1])//;
- my $plugindir = $str."plugins/";
-+$plugindir = "/usr/share/regripper/";
+--- rip.pl
++++ rip.pl
+@@ -60,7 +60,8 @@ $str =~ s/($path[scalar(@path) - 1])//;
+ #push(@INC,$str);
+ 
+ #my $plugindir = $str."plugins/";
+-my $plugindir = File::Spec->catfile("plugins");
++#my $plugindir = File::Spec->catfile("plugins");
++my $plugindir = "/usr/share/regripper/plugins";
  #print "Plugins Dir = ".$plugindir."\n";
  # End code update
- my $VERSION = "20090102";
-@@ -289,4 +290,4 @@
- 	};
- 	$t = 0 if ($t < 0);
- 	return $t;
--}
-\ No newline at end of file
-+}
+ my $VERSION = "2\.8_20130801";
