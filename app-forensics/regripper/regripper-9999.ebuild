@@ -7,7 +7,7 @@ EAPI=3
 inherit eutils
 
 DESCRIPTION="Perl scripts to parse Windows registry files"
-HOMEPAGE="https://github.com/keydet89/RegRipper2.8"
+HOMEPAGE="https://regripper.wordpress.com/regripper/"
 
 if [[ ${PV} = 9999 ]]; then
     EGIT_REPO_URI="https://github.com/keydet89/RegRipper2.8.git"
@@ -33,10 +33,10 @@ src_prepare() {
 }
 
 src_compile() {
-	if [[ ${PV} = 9999 ]]; then
-		epatch "${FILESDIR}"/plugins_folder.patch
-    	dos2unix plugins/*.pl
-	fi
+    if [[ ${PV} = 9999 ]]; then
+        epatch "${FILESDIR}"/plugins_folder.patch
+        dos2unix plugins/*.pl
+    fi
 
     dos2unix *.pl
 
@@ -47,10 +47,10 @@ src_install () {
     newbin rip.pl ${PN}
     rm rip.pl
 
-	if [[ ${PV} = 9999 ]]; then
-    	insinto /usr/share/"${PN}"
-    	doins -r plugins
-	fi
+    if [[ ${PV} = 9999 ]]; then
+        insinto /usr/share/"${PN}"
+        doins -r plugins
+    fi
 
-	dodoc regripper.pdf
+    dodoc regripper.pdf
 }
