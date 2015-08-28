@@ -5,7 +5,7 @@
 EAPI=4
 
 DESCRIPTION="A perl script to enumerate DNS from a server"
-HOMEPAGE="https://code.google.com/p/dnsenum/"
+HOMEPAGE="https://github.com/fwaeytens/dnsenum"
 SRC_URI="https://github.com/fwaeytens/dnsenum/archive/${PV}.tar.gz"
 
 LICENSE="GPL-2+"
@@ -20,9 +20,10 @@ RDEPEND="dev-perl/Net-DNS
 	dev-perl/Net-Whois-IP
 	dev-perl/HTML-Parser
 	dev-perl/WWW-Mechanize
-	dev-perl/XML-Writer"
+	dev-perl/XML-Writer
+	dev-perl/String-Random"
 
-S="${WORKDIR}"
+S="${WORKDIR}/${P}"
 
 src_prepare() {
 	sed -i 's|dnsenum.pl|dnsenum|g' dnsenum.pl || die
