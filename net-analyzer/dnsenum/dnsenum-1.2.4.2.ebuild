@@ -30,6 +30,11 @@ src_prepare() {
 }
 
 src_install () {
-	dodoc *.txt
+	dodoc INSTALL.txt
+	dodoc README.md
+
 	newbin ${PN}.pl ${PN}
+
+	insinto /usr/share/"${PN}"
+	doins dns.txt
 }
