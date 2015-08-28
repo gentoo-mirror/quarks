@@ -2,11 +2,12 @@ app-backup/duplicity 0.7.02: Secure backup system using gnupg to encrypt data
 app-forensics/regripper 9999: Perl scripts to parse Windows registry files
 app-misc/dradis 2.8.0: A framework for effective information sharing
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
+dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 games-util/gtkevemon 9999: A standalone skill monitoring application for EVE Online
 games-util/pyfa 1.13.2: Python Fitting Assistant - a ship fitting application for EVE Online
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
 media-video/glc 0.5.8: OpenGL & ALSA video capture tool
-net-analyzer/dnsenum 1.2.2: A perl script to enumerate DNS from a server
+net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-analyzer/fierce 1.0.3: Fierce is a DNS reconnaissance tool written in perl
 net-analyzer/theHarvester 2.1: The Harvester is a tool designed to collect email accounts of the target domain
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
