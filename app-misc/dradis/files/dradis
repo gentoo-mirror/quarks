@@ -1,5 +1,0 @@
-#!/bin/sh
-export RAILS_ENV=production
-
-cd /usr/lib/dradis
-bundle exec rails server webrick $*
