@@ -29,12 +29,18 @@ mount_overlay () {
 
 # umount overlay and clean up temp dirs
 umount_overlay () {
-    umount ${OVERLAY_NAME} && rm -rf ${OVERLAY} ${OVERLAY}.work
-    echo "Overlay file system unmounted."
+    mount | grep -q ${OVERLAY_NAME}
+    if [ $? -eq 0 ]; then
+        umount ${OVERLAY_NAME} && rm -rf ${OVERLAY} ${OVERLAY}.work
+        echo "Overlay file system unmounted."
+    fi
 }
 
 # umount current, replace and mount new 
 replace_squashfs () {
+    [ ! -f ${SQFS_PORTAGE}.new ] || \
+      { echo "No new portage tree version found!"; exit 1; }
+
     mountpoint -q ${PORTAGE}
     if [ $? -eq 0 ]; then
         umount ${PORTAGE} && echo "Unmounted ${PORTAGE}."
@@ -51,6 +57,7 @@ replace_squashfs () {
         echo "No current squashFS backing file ${SQFS_PORTAGE} found,\
 	assuming initial setup."
     fi
+       
     mv ${SQFS_PORTAGE}.new ${SQFS_PORTAGE} && \
       mount ${PORTAGE} && echo "Updated tree mounted at ${PORTAGE}."
 }
@@ -76,6 +83,19 @@ customize () {
       ${PORTAGE}/profiles/hardened/linux/amd64/package.use.mask
 }
 
+cleanup () {
+    # In case still mounted
+    umount_overlay
+
+    # Remove potential left overs from mksquashfs
+    [ -f ${SQFS_PORTAGE}.new ] && rm -f ${SQFS_PORTAGE}.new
+
+    # Make sure we have a working portage tree mounted
+    mountpoint -q ${PORTAGE} || mount ${PORTAGE} 
+
+    exit 1
+}
+
 while getopts "p:s:" OPTIONS; do
    case $OPTIONS in
        p) PORTAGE=$OPTARG;;
@@ -86,7 +106,11 @@ done
 
 [ -d ${PORTAGE} ] || { echo "${PORTAGE} is not a directory!"; usage; }
 
+# make sure we clean up nad have a working tree if interupted
+trap "cleanup" INT TERM 
+
 mount_overlay
+
 emaint sync -r gentoo
 
 # Optional 
@@ -94,4 +118,5 @@ customize
 
 create_squashfs
 umount_overlay
+
 replace_squashfs
