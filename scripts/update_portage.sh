@@ -38,7 +38,7 @@ umount_overlay () {
 
 # umount current, replace and mount new 
 replace_squashfs () {
-    [ ! -f ${SQFS_PORTAGE}.new ] || \
+    [ -f ${SQFS_PORTAGE}.new ] || \
       { echo "No new portage tree version found!"; exit 1; }
 
     mountpoint -q ${PORTAGE}
