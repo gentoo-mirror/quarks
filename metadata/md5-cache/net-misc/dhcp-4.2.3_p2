@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst preinst prepare unpack
+DEPEND=selinux? ( sec-policy/selinux-dhcp ) client? ( kernel_linux? ( sys-apps/net-tools ) ) ldap? ( net-nds/openldap ssl? ( dev-libs/openssl ) )
+DESCRIPTION=ISC Dynamic Host Configuration Protocol (DHCP) client/server
+EAPI=4
+HOMEPAGE=http://www.isc.org/products/DHCP
+IUSE=+client ipv6 kernel_linux ldap selinux +server ssl vim-syntax
+KEYWORDS=~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd
+LICENSE=as-is BSD
+RDEPEND=selinux? ( sec-policy/selinux-dhcp ) client? ( kernel_linux? ( sys-apps/net-tools ) ) ldap? ( net-nds/openldap ssl? ( dev-libs/openssl ) ) vim-syntax? ( app-vim/dhcpd-syntax )
+SLOT=0
+SRC_URI=ftp://ftp.isc.org/isc/dhcp/dhcp-4.2.3-P2.tar.gz ftp://ftp.isc.org/isc/dhcp/4.2.3-P2/dhcp-4.2.3-P2.tar.gz
+_eclass_exported_funcs=pkg_preinst:- pkg_postinst:- src_unpack:- src_prepare:- src_configure:- src_compile:- src_install:-
+_eclasses_=eutils	f20548a2f7b0128068388cd2ec26708a	multilib	3972ca401cf7dbb430df9995f5d8d580	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=6c681b4ba55fc3835fc1d1a777209af9
