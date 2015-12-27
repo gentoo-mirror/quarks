@@ -4,6 +4,7 @@ app-forensics/regripper 9999: Perl scripts to parse Windows registry files
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 games-util/gtkevemon 9999: A standalone skill monitoring application for EVE Online
+games-util/pyfa 1.17.1 9999: Python Fitting Assistant - a ship fitting application for EVE Online
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
 media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
