@@ -1,0 +1,76 @@
+Only in Pyfa-1.17.1.orig/: __init__.py
+diff -ru Pyfa-1.17.1/config.py Pyfa-1.17.1.orig/config.py
+--- Pyfa-1.17.1/config.py	2015-12-27 14:50:39.738752494 -0800
++++ Pyfa-1.17.1.orig/config.py	2015-12-27 14:53:07.194131679 -0800
+@@ -28,6 +28,8 @@
+ savePath = None
+ saveDB = None
+ gameDB = None
++imgsZIP = None
++imgs = None
+ 
+ 
+ class StreamToLogger(object):
+@@ -66,6 +68,8 @@
+     global savePath
+     global saveDB
+     global gameDB
++    global imgsZIP
++    global imgs
+     global saveInRoot
+ 
+     if debug:
+@@ -121,7 +125,18 @@
+     # The database where the static EVE data from the datadump is kept.
+     # This is not the standard sqlite datadump but a modified version created by eos
+     # maintenance script
+-    gameDB = os.path.join(pyfaPath, "eve.db")
++    gameDB = getattr(configforced, "gameDB", None)
++    if gameDB is None:
++        gameDB = os.path.join(pyfaPath, "eve.db")
++
++    imgsZIP = getattr(configforced, "imgsZIP", None)
++    if imgsZIP is None:
++        imgsZIP = os.path.join(pyfaPath, "imgs.zip")
++
++    imgs = getattr(configforced, "imgs", None)
++    if imgs is None:
++        imgs = os.path.join(pyfaPath, "imgs")
++
+ 
+     ## DON'T MODIFY ANYTHING BELOW ##
+     import eos.config
+diff -ru Pyfa-1.17.1/gui/bitmapLoader.py Pyfa-1.17.1.orig/gui/bitmapLoader.py
+--- Pyfa-1.17.1/gui/bitmapLoader.py	2015-12-10 17:18:02.000000000 -0800
++++ Pyfa-1.17.1.orig/gui/bitmapLoader.py	2015-12-27 14:53:07.163131390 -0800
+@@ -31,7 +31,7 @@
+ class BitmapLoader():
+ 
+     try:
+-        archive = zipfile.ZipFile(os.path.join(config.pyfaPath, 'imgs.zip'), 'r')
++        archive = zipfile.ZipFile(config.imgsZIP, 'r')
+     except IOError:
+         archive = None
+ 
+@@ -85,7 +85,7 @@
+             except KeyError:
+                 print "Missing icon file from zip: {0}".format(path)
+         else:
+-            path = os.path.join(config.pyfaPath, 'imgs', location, filename)
++            path = os.path.join(config.imgs, 'imgs', location, filename)
+ 
+             if os.path.exists(path):
+                 return wx.Image(path)
+diff -ru Pyfa-1.17.1/pyfa.py Pyfa-1.17.1.orig/pyfa.py
+--- Pyfa-1.17.1/pyfa.py	2015-12-27 14:50:39.739752504 -0800
++++ Pyfa-1.17.1.orig/pyfa.py	2015-12-27 14:53:07.194131679 -0800
+@@ -20,6 +20,9 @@
+ 
+ import sys
+ import re
++
++import os
++sys.path.append(os.path.join("%%SITEDIR%%", "pyfa"))
+ import config
+ 
+ from optparse import OptionParser, BadOptionError, AmbiguousOptionError
