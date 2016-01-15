@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile install prepare setup
+DEPEND=|| ( >=dev-lang/python-2.7.5-r2:2.7 ) || ( net-libs/nodejs[npm] net-libs/iojs[npm] ) media-fonts/inconsolata gnome-base/gconf x11-libs/gtk+:2 gnome-base/libgnome-keyring x11-libs/libnotify x11-libs/libXtst dev-libs/nss media-libs/alsa-lib net-print/cups
+DESCRIPTION=A hackable text editor for the 21st Century
+EAPI=5
+HOMEPAGE=https://atom.io
+KEYWORDS=~amd64 ~x86
+LICENSE=MIT
+RDEPEND=|| ( >=dev-lang/python-2.7.5-r2:2.7 ) || ( net-libs/nodejs[npm] net-libs/iojs[npm] ) media-fonts/inconsolata gnome-base/gconf x11-libs/gtk+:2 gnome-base/libgnome-keyring x11-libs/libnotify x11-libs/libXtst dev-libs/nss media-libs/alsa-lib net-print/cups
+RESTRICT=mirror
+SLOT=0
+SRC_URI=https://github.com/atom/atom/archive/v1.4.0.tar.gz -> 1.4.0.tar.gz
+_eclass_exported_funcs=pkg_setup:- src_prepare:- src_compile:- src_install:-
+_eclasses_=eutils	d9bd2ddd85a58e470b49ca997e255a4c	flag-o-matic	85dc1eac3c64d8141374490ed64122e5	multilib	3972ca401cf7dbb430df9995f5d8d580	pax-utils	ecf634cba91bb9591a8fdb6f6145f1bb	python-any-r1	8eb13cdf35f6e43c48107b911900b2cc	python-utils-r1	30887c5e8630bbf27b5cf0fd74564323	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=1b03efa0e97e041188d986715a1aa8ef
