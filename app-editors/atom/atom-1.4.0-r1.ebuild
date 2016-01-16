@@ -70,7 +70,9 @@ src_compile(){
 	done
 	[ $SUCCESS -eq 0 ] && die "Build failed"
 
+    pax-mark m ${T}/Atom/atom
     pax-mark m ${T}/Atom/resources/app/apm/bin/node
+
 	"${T}/Atom/resources/app/apm/bin/apm" rebuild || die "Failed to rebuild native module"
 	echo "python = $PYTHON" >> "${T}/Atom/resources/app/apm/.apmrc"
 }
@@ -95,7 +97,4 @@ src_install(){
 	# Symlinking to /usr/bin
 	dosym ${EPREFIX}/usr/share/${PN}/resources/app/atom.sh /usr/bin/atom
 	dosym ${EPREFIX}/usr/share/${PN}/resources/app/apm/bin/apm /usr/bin/apm
-	# Fix Pax
-	pax-mark m ${EPREFIX}/usr/share/${PN}/resources/app/apm/bin/node
-	pax-mark m ${EPREFIX}/usr/share/${PN}/${PN}
 }
