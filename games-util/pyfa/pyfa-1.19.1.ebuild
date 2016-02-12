@@ -9,7 +9,7 @@ PYTHON_REQ_USE="sqlite,threads"
 inherit eutils gnome2-utils python-r1
 
 DESCRIPTION="Python Fitting Assistant - a ship fitting application for EVE Online"
-HOMEPAGE="https://github.com/DarkFenX/Pyfa"
+HOMEPAGE="https://github.com/pyfa-org/Pyfa"
 
 LICENSE="GPL-3+ LGPL-2.1+ CC-BY-2.5 free-noncomm"
 SLOT="0"
@@ -18,7 +18,7 @@ if [[ ${PV} = 9999 ]]; then
 	inherit git-2
 	KEYWORDS=""
 else
-	SRC_URI="https://github.com/DarkFenX/Pyfa/archive/v${PV}.tar.gz -> pyfa-${PV}.tar.gz"
+	SRC_URI="https://github.com/pyfa-org/Pyfa/archive/v${PV}.tar.gz -> pyfa-${PV}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~x86"
 fi
 IUSE="+graph"
