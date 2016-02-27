@@ -106,7 +106,7 @@ done
 
 [ -d ${PORTAGE} ] || { echo "${PORTAGE} is not a directory!"; usage; }
 
-# make sure we clean up nad have a working tree if interupted
+# make sure we clean up and have a working portage tree if interupted
 trap "cleanup" INT TERM 
 
 mount_overlay
