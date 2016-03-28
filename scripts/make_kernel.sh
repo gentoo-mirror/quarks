@@ -20,11 +20,20 @@ dracut --xz -H --force --strip ${TARGET}/initrd-${NEW} ${NEW}
 export INSTALL_PATH=${TARGET}
 make install
 
-if [ ! -d /sys/firmware/efi ]; then
-	grub2-mkconfig -o ${TARGET}/grub/grub.cfg
-	pushd ${TARGET} >/dev/null
-	ln -sf System.map-${NEW} System.map
-	popd > /dev/null
+# UEFI
+if [ -d /sys/firmware/efi ]; then
+    LUKS_UUID=$(blkid  | grep crypto_LUKS | awk '{print $2}' | uniq | sed -e 's/UUID=//' | sed -e 's/"//g')
+
+    # Remove potential existing entries for this kernel
+    BOOT_IDS=$(efibootmgr | grep Gentoo-${NEW} | awk '{print $1}' | sed 's/Boot\(.*\)\*/\1/')
+    for b in $BOOT_IDS; do efibootmgr -b $b -B > /dev/null; done
+
+    efibootmgr -c -L Gentoo-${NEW} -l /EFI/Gentoo/vmlinuz-${NEW} -u "initrd=/EFI/Gentoo/initrd-${NEW} root=/dev/mapper/disks-root ro quiet rd.luks.uuid=${LUKS_UUID} rd.lvm.vg=disks rd.luks.allow-discards libata.force=noncq"
+else
+    grub2-mkconfig -o ${TARGET}/grub/grub.cfg
+    pushd ${TARGET} >/dev/null
+    ln -sf System.map-${NEW} System.map
+    popd > /dev/null
 fi
 
 echo "Building tools from within kernel sources..."
