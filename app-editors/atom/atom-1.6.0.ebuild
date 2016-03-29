@@ -27,7 +27,6 @@ DEPEND="
 	x11-libs/libXtst
 	dev-libs/nss
 	media-libs/alsa-lib
-	net-print/cups
 "
 RDEPEND="${DEPEND}"
 
