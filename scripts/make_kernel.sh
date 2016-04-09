@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+export MAKEOPTS="-j$(nproc)"
+
 cd /usr/src/linux
 
 # make clean
