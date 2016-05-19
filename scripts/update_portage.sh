@@ -1,9 +1,11 @@
 #!/bin/sh
-# set -x
+#set -x
 
+# Default portage location
 PORTAGE="/usr/portage"
 # By default store SquashFS backing file under /mnt/portage
 SQFS_PORTAGE="/mnt/portage/portage.sqfs"
+
 # Store temporary overlayFS within portage tmpdir
 OVERLAY="$(portageq envvar PORTAGE_TMPDIR)/portage.overlayfs"
 OVERLAY_NAME=portage_overlay
@@ -59,25 +61,24 @@ replace_squashfs () {
     fi
        
     mv ${SQFS_PORTAGE}.new ${SQFS_PORTAGE} && \
-      mount ${PORTAGE} && echo "Updated tree mounted at ${PORTAGE}."
+      mount ${PORTAGE} && echo "Mounted new snapshot at ${PORTAGE}."
 }
 
 # Create new squashfs image
 create_squashfs () {
+    echo 'Creating new SquashFS snapshot ...'
     mksquashfs ${PORTAGE} ${SQFS_PORTAGE}.new -comp xz -noappend \
-      -no-progress && echo "SquashFS snapshot created at ${SQFS_PORTAGE}.new"
+      -no-progress 1>/dev/null && echo "SquashFS snapshot created at ${SQFS_PORTAGE}.new"
 }
 
 # Any custom changes to the portage tree 
 customize () {
     echo "Applying local customizations ..."
 
-    # Delete any package mask
-    [ -f ${PORTAGE}/profiles/hardened/linux/amd64/package.mask ] && \
-      rm -f ${PORTAGE}/profiles/hardened/linux/amd64/package.mask
-
     # Reenable nvidia
-    perl -i -p -e 's/^(app-admin\/conky nvidia|x11-drivers\/nvidia|nvidia|video_cards_nvidia|vdpau|cuda|opencl)/# $1/;' \
+    perl -i -p -e 's/^(app-admin\/conky nvidia|x11-drivers\/nvidia|nvidia|video_cards_nvidia|vdpau|cuda|opencl)/# disabled by update_portage.sh - $1/;' \
+      ${PORTAGE}/profiles/hardened/linux/package.mask \
+      ${PORTAGE}/profiles/hardened/linux/amd64/package.mask \
       ${PORTAGE}/profiles/hardened/linux/use.mask \
       ${PORTAGE}/profiles/hardened/linux/amd64/use.mask \
       ${PORTAGE}/profiles/hardened/linux/amd64/package.use.mask
@@ -88,7 +89,7 @@ cleanup () {
     umount_overlay
 
     # Remove potential left overs from mksquashfs
-    [ -f ${SQFS_PORTAGE}.new ] && rm -f ${SQFS_PORTAGE}.new
+    rm -f ${SQFS_PORTAGE}.new
 
     # Make sure we have a working portage tree mounted
     mountpoint -q ${PORTAGE} || mount ${PORTAGE} 
@@ -111,9 +112,12 @@ trap "cleanup" INT TERM
 
 mount_overlay
 
-emaint sync -r gentoo
+echo 'Syncing gentoo portage tree ...'
+emaint sync -r gentoo 2>/dev/null | grep -q 'You are already up to date'
+# End early if there are no upstream changes
+[ $? -ne 0 ] && { echo 'No upstream changes. Exiting.'; cleanup; }
 
-# Optional 
+# Optional step to customize the tree, mostly to alter upstream use masks
 customize
 
 create_squashfs
