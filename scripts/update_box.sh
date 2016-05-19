@@ -1,11 +1,15 @@
 #!/bin/sh
+#set -x
 set -e
+
+TODO=$(emerge -q --update --deep --newuse --pretend --with-bdeps=y world)
+[ "${TODO}x" == "x" ] && { echo "Nothing to merge."; exit 0; }
 
 # parallel jobs to speed up configure runs etc.
 # but only half as many if CPU cores > 4
 CPUS=$(nproc)
 [ $CPUS -ge 4 ] && JOBS="--jobs $((CPUS/2))"
-emerge --ask --update --deep --newuse --keep-going --accept-properties=-interactive --with-bdeps=y ${JOBS} world
+emerge --ask --update --deep --newuse --keep-going --accept-properties=-interactive --fail-clean --with-bdeps=y ${JOBS} world 
 
 echo "Going to remove unneeded packages ..."
 emerge --depclean
