@@ -113,9 +113,10 @@ trap "cleanup" INT TERM
 mount_overlay
 
 # End early if there are no upstream changes
+# If rsync s executed more than once timestamps differed so we assume updates available
 echo 'Syncing gentoo portage tree ...'
-emaint sync -r gentoo 2>/dev/null | grep -q 'You are already up to date'
-[ $? -eq 0 ] && { echo 'No upstream changes. Exiting.'; cleanup; }
+RUNS=$(emaint sync -r gentoo 2>/dev/null | grep -c 'Number of files')
+[ $RUNS -le 2 ] && { echo 'No upstream changes. Exiting.'; cleanup; }
 
 # Optional step to customize the tree, mostly to alter upstream use masks
 customize
