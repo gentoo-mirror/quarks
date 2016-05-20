@@ -112,10 +112,10 @@ trap "cleanup" INT TERM
 
 mount_overlay
 
+# End early if there are no upstream changes
 echo 'Syncing gentoo portage tree ...'
 emaint sync -r gentoo 2>/dev/null | grep -q 'You are already up to date'
-# End early if there are no upstream changes
-[ $? -ne 0 ] && { echo 'No upstream changes. Exiting.'; cleanup; }
+[ $? -eq 0 ] && { echo 'No upstream changes. Exiting.'; cleanup; }
 
 # Optional step to customize the tree, mostly to alter upstream use masks
 customize
