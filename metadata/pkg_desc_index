@@ -16,4 +16,5 @@ sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9
 sys-power/tpc 0.44: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
 x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
 x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
+x11-misc/xsecurelock 9999: X11 screen lock utility with security in mind
 x11-plugins/cairo-dock-plugins 2.4.0.2 3.0.0 3.0.2 3.1.2: Official plugins for cairo-dock
