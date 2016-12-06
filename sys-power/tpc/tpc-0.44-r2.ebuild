@@ -6,8 +6,8 @@ EAPI=4
 
 DESCRIPTION="TurionPowerControl is a command line tool that allows users to
 tweak AMD processors parameters."
-HOMEPAGE="https://code.google.com/p/turionpowercontrol/"
-SRC_URI="https://turionpowercontrol.googlecode.com/files/${P}-rc2-src.tar.gz"
+HOMEPAGE="https://github.com/turionpowercontrol/tpc"
+SRC_URI="https://github.com/turionpowercontrol/tpc/archive/${P}-rc2.tar.gz"
 
 LICENSE=""
 SLOT="0"
@@ -17,7 +17,7 @@ IUSE=""
 DEPEND="sys-libs/ncurses"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${P}-rc2-src"
+S="${WORKDIR}/tpc-${P}-rc2"
 
 src_install () {
 	dosbin TurionPowerControl
