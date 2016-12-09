@@ -30,7 +30,7 @@ if [ -d /sys/firmware/efi ]; then
     BOOT_IDS=$(efibootmgr | grep Gentoo-${NEW} | awk '{print $1}' | sed 's/Boot\(.*\)\*/\1/')
     for b in $BOOT_IDS; do efibootmgr -b $b -B > /dev/null; done
 
-    efibootmgr -c -L Gentoo-${NEW} -l /EFI/Gentoo/vmlinuz-${NEW} -u "initrd=/EFI/Gentoo/initrd-${NEW} root=/dev/mapper/disks-root ro quiet rd.luks.uuid=${LUKS_UUID} rd.lvm.vg=disks rd.luks.allow-discards libata.force=noncq"
+    efibootmgr -c -L Gentoo-${NEW} -l /EFI/Gentoo/vmlinuz-${NEW} -u "initrd=/EFI/Gentoo/initrd-${NEW} root=/dev/mapper/disks-root ro quiet rd.luks.uuid=${LUKS_UUID} rd.lvm.vg=disks rd.luks.allow-discards libata.force=noncq acpi_osi="
 else
     grub2-mkconfig -o ${TARGET}/grub/grub.cfg
     pushd ${TARGET} >/dev/null
