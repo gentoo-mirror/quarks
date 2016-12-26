@@ -2,8 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
-
+EAPI=6
 inherit eutils flag-o-matic linux-info linux-mod multilib nvidia-driver \
 	portability toolchain-funcs unpacker user udev
 
@@ -22,12 +21,14 @@ SRC_URI="
 	arm? ( ${NV_URI}Linux-x86-ARM/${PV}/${ARM_NV_PACKAGE}.run )
 	x86-fbsd? ( ${NV_URI}FreeBSD-x86/${PV}/${X86_FBSD_NV_PACKAGE}.tar.gz )
 	x86? ( ${NV_URI}Linux-x86/${PV}/${X86_NV_PACKAGE}.run )
-	tools? ( ftp://download.nvidia.com/XFree86/nvidia-settings/nvidia-settings-${PV}.tar.bz2 )
+	tools? (
+		ftp://download.nvidia.com/XFree86/nvidia-settings/nvidia-settings-${PV}.tar.bz2
+	)
 "
 
 LICENSE="GPL-2 NVIDIA-r2"
 SLOT="0/${PV%.*}"
-KEYWORDS="-* ~amd64 ~x86 ~amd64-fbsd ~x86-fbsd"
+KEYWORDS="-* amd64 x86 ~amd64-fbsd ~x86-fbsd"
 RESTRICT="bindist mirror"
 EMULTILIB_PKG="true"
 
@@ -70,7 +71,7 @@ RDEPEND="
 	tools? ( !media-video/nvidia-settings )
 	wayland? ( dev-libs/wayland )
 	X? (
-		<x11-base/xorg-server-1.18.99:=
+		<x11-base/xorg-server-1.19.99:=
 		>=x11-libs/libvdpau-1.0
 		multilib? (
 			>=x11-libs/libX11-1.6.2[abi_x86_32]
@@ -90,11 +91,11 @@ pkg_pretend() {
 		die "Unexpected \${DEFAULT_ABI} = ${DEFAULT_ABI}"
 	fi
 
-	if use kernel_linux && kernel_is ge 4 8; then
+	if use kernel_linux && kernel_is ge 4 10; then
 		ewarn "Gentoo supports kernels which are supported by NVIDIA"
 		ewarn "which are limited to the following kernels:"
-		ewarn "<sys-kernel/gentoo-sources-4.8"
-		ewarn "<sys-kernel/vanilla-sources-4.8"
+		ewarn "<sys-kernel/gentoo-sources-4.10"
+		ewarn "<sys-kernel/vanilla-sources-4.10"
 		ewarn ""
 		ewarn "You are free to utilize epatch_user to provide whatever"
 		ewarn "support you feel is appropriate, but will not receive"
@@ -170,17 +171,17 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-profiles-rc.patch
+	eapply "${FILESDIR}"/${P}-profiles-rc.patch
 
 	if use pax_kernel; then
 		ewarn "Using PAX patches is not supported. You will be asked to"
 		ewarn "use a standard kernel should you have issues. Should you"
 		ewarn "need support with these patches, contact the PaX team."
-		epatch "${FILESDIR}"/${PN}-370.28-pax.patch
+		eapply "${FILESDIR}"/${P}-pax.patch
 	fi
 
 	# Allow user patches so they can support RC kernels and whatever else
-	epatch_user
+	eapply_user
 }
 
 src_compile() {
@@ -317,7 +318,6 @@ src_install() {
 	fi
 
 	# Documentation
-	dohtml ${NV_DOC}/html/*
 	if use kernel_FreeBSD; then
 		dodoc "${NV_DOC}/README"
 		use X && doman "${NV_MAN}/nvidia-xconfig.1"
@@ -332,11 +332,17 @@ src_install() {
 		doman "${NV_MAN}/nvidia-cuda-mps-control.1.gz"
 	fi
 
+	docinto html
+	dodoc -r ${NV_DOC}/html/*
+
 	# Helper Apps
 	exeinto /opt/bin/
 
 	if use X; then
 		doexe ${NV_OBJ}/nvidia-xconfig
+
+		insinto /etc/vulkan/icd.d
+		doins nvidia_icd.json
 	fi
 
 	if use kernel_linux; then
@@ -393,9 +399,6 @@ src_install() {
 
 		exeinto /etc/X11/xinit/xinitrc.d
 		newexe "${FILESDIR}"/95-nvidia-settings-r1 95-nvidia-settings
-
-		insinto /etc/vulkan/icd.d
-		doins nvidia_icd.json
 	fi
 
 	dobin ${NV_OBJ}/nvidia-bug-report.sh
