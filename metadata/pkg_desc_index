@@ -5,6 +5,7 @@ dev-perl/String-Random 0.280.0: Perl module to generate random strings based on 
 dev-python/twine 1.8.1: Collection of utilities for interacting with PyPI
 games-util/pyfa 1.21.3 1.24.0 9999: Python Fitting Assistant - a ship fitting application for EVE Online
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
+media-video/ffmpeg 2.8.6 2.8.10 3.2.2-r1 9999: Complete solution to record, convert and stream audio and video. Includes libavcodec
 media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-analyzer/theHarvester 9999: The Harvester is a tool designed to collect email accounts of the target domain
