@@ -10,7 +10,7 @@ media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-analyzer/theHarvester 9999: The Harvester is a tool designed to collect email accounts of the target domain
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
-net-misc/universalmediaserver 6.5.3: Universal Media Server is a DLNA-compliant UPnP Media Server.
+net-misc/universalmediaserver 6.6.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-voip/twinkle 1.10.1: Softphone for VoIP communcations using SIP protocol
 sys-block/partclone 0.2.69: Partition cloning tool
 sys-boot/plymouth 0.8.4: Graphical boot animation (splash) and logger
