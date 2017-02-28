@@ -8,7 +8,6 @@ media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstr
 media-video/ffmpeg 2.8.6 2.8.10 3.2.2-r1 9999: Complete solution to record, convert and stream audio and video. Includes libavcodec
 media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
-net-analyzer/theHarvester 9999: The Harvester is a tool designed to collect email accounts of the target domain
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
 net-misc/universalmediaserver 6.6.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-voip/twinkle 1.10.1: Softphone for VoIP communcations using SIP protocol
