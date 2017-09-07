@@ -8,5 +8,4 @@ LICENSE=GPL-3
 RDEPEND=app-admin/sysstat x11-wm/i3
 SLOT=0
 SRC_URI=https://github.com/vivien/i3blocks/archive/1.4.tar.gz -> i3blocks-1.4.tar.gz
-_eclass_exported_funcs=src_install:-
 _md5_=bc163481447e5ad08d4944afc1dea4f7

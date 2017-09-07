@@ -7,5 +7,4 @@ KEYWORDS=~amd64 ~x86
 RDEPEND=sys-libs/ncurses
 SLOT=0
 SRC_URI=https://github.com/turionpowercontrol/tpc/archive/tpc-0.44-rc2.tar.gz
-_eclass_exported_funcs=src_install:-
 _md5_=9cee1309a5786e4bd58779f58ce9a56c
