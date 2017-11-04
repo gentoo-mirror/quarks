@@ -26,9 +26,9 @@ IUSE="+graph"
 RDEPEND="dev-python/python-dateutil[${PYTHON_USEDEP}]
 	dev-python/sqlalchemy[${PYTHON_USEDEP}]
 	dev-python/wxpython:3.0[${PYTHON_USEDEP}]
-	graph? (
-		dev-python/matplotlib[wxwidgets,${PYTHON_USEDEP}]
-		dev-python/numpy[${PYTHON_USEDEP}] )
+	dev-python/requests[${PYTHON_USEDEP}]
+	>=dev-python/logbook-0.10[${PYTHON_USEDEP}]
+	graph? ( dev-python/matplotlib[wxwidgets,${PYTHON_USEDEP}] )
 	${PYTHON_DEPS}"
 DEPEND="app-arch/zip"
 
@@ -36,16 +36,13 @@ DEPEND="app-arch/zip"
 
 src_prepare() {
 	# get rid of CRLF line endings introduced in 1.1.10 so patches work
-	edos2unix config.py pyfa.py service/settings.py
+	edos2unix config.py pyfa.py service/settings.py gui/bitmapLoader.py
 
 	# load gameDB and images from separate staticdata directory
-	eapply "${FILESDIR}/${PN}-1.15.1-staticdata.patch"
-
-	# do not try to save exported html to python sitedir
-	eapply "${FILESDIR}/${PN}-1.20.2-html-export-path.patch"
+	eapply "${FILESDIR}/${PN}-1.33.1-staticdata.patch"
 
 	# fix import path in the main script for systemwide installation
-	eapply "${FILESDIR}/${PN}-1.15.1-import-pyfa.patch"
+	eapply "${FILESDIR}/${PN}-1.33.1-import-pyfa.patch"
 
 	eapply_user
 
@@ -55,7 +52,7 @@ src_prepare() {
 		mkdir -p "${BUILD_DIR}" || die
 		sed -e "s:%%SITEDIR%%:$(python_get_sitedir):" \
 			-e "s:%%EPREFIX%%:${EPREFIX}:" \
-			"${FILESDIR}/configforced-1.15.1.py" > "${BUILD_DIR}/configforced.py"
+			"${FILESDIR}/configforced-1.33.1.py" > "${BUILD_DIR}/configforced.py"
 		sed -e "s:%%SITEDIR%%:$(python_get_sitedir):" \
 			pyfa.py > "${BUILD_DIR}/pyfa"
 	}
