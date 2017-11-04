@@ -1,0 +1,12 @@
+diff --git a/pyfa.py b/pyfa.py
+index 4faa1edd..e764da42 100755
+--- a/pyfa.py
++++ b/pyfa.py
+@@ -29,6 +29,7 @@ from optparse import AmbiguousOptionError, BadOptionError, OptionParser
+ from logbook import CRITICAL, DEBUG, ERROR, FingersCrossedHandler, INFO, Logger, NestedSetup, NullHandler, StreamHandler, TimedRotatingFileHandler, WARNING, \
+     __version__ as logbook_version
+ 
++sys.path.append(os.path.join("%%SITEDIR%%", "pyfa"))
+ import config
+ 
+ try:
