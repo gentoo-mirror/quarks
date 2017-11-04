@@ -5,7 +5,7 @@ dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 dev-python/awscli 1.11.122: Universal Command Line Environment for AWS
 dev-python/twine 1.8.1: Collection of utilities for interacting with PyPI
-games-util/pyfa 1.21.3 1.24.0 9999: Python Fitting Assistant - a ship fitting application for EVE Online
+games-util/pyfa 1.33.1 9999: Python Fitting Assistant - a ship fitting application for EVE Online
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
 media-sound/cava 0.6.0: Console-based Audio Visualizer for ALSA (=CAVA)
 media-sound/sndio 1.2.0: small audio and MIDI framework part of the OpenBSD project
