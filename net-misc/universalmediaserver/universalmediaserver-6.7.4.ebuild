@@ -8,8 +8,7 @@ inherit eutils
 
 DESCRIPTION="Universal Media Server is a DLNA-compliant UPnP Media Server."
 HOMEPAGE="http://www.universalmediaserver.com/"
-SRC_URI="mirror://sourceforge/project/unimediaserver/Official%20Releases/Linux/UMS-${PV}-Java8.tgz"
-
+SRC_URI="mirror://sourceforge/project/unimediaserver/Official%20Releases/Linux/UMS-${PV}.tgz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -70,7 +69,7 @@ src_install() {
 	insinto ${UMS_HOME}
 	doins -r ums.jar *.conf documentation plugins renderers *.xml
 	use tsmuxer && dosym /opt/tsmuxer/bin/tsMuxeR ${UMS_HOME}/linux/tsMuxeR
-	dodoc CHANGELOG.txt README.txt
+	dodoc CHANGELOG.txt README.md
 
 	newicon -s 32 icon-32.png ${PN}.png
 	newicon -s 256 icon-256.png ${PN}.png
