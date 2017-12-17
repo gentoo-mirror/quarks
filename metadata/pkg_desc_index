@@ -1,26 +1,3 @@
-app-backup/duplicity 0.7.05: Secure backup system using gnupg to encrypt data
-app-forensics/regripper 9999: Perl scripts to parse Windows registry files
-dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
-dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
-dev-python/awscli 1.11.122: Universal Command Line Environment for AWS
-dev-python/twine 1.8.1: Collection of utilities for interacting with PyPI
-games-util/pyfa 1.33.1 9999: Python Fitting Assistant - a ship fitting application for EVE Online
-media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
-media-sound/cava 0.6.0: Console-based Audio Visualizer for ALSA (=CAVA)
-media-sound/sndio 1.2.0: small audio and MIDI framework part of the OpenBSD project
-media-video/ffmpeg 2.8.6 2.8.10 3.2.2-r1 9999: Complete solution to record, convert and stream audio and video. Includes libavcodec
-media-video/glc 0.5.8: OpenGL & ALSA video capture tool
-net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
-net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
-net-misc/universalmediaserver 6.7.4: Universal Media Server is a DLNA-compliant UPnP Media Server.
-net-voip/twinkle 1.10.1: Softphone for VoIP communcations using SIP protocol
-sys-block/partclone 0.2.69: Partition cloning tool
-sys-boot/plymouth 0.8.4: Graphical boot animation (splash) and logger
-sys-kernel/dracut 027-r1: Generic initramfs generation tool
-sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9)
-sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
+media-video/ffmpeg 2.8.6: Complete solution to record, convert and stream audio and video. Includes libavcodec
+net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.2-r1 4.2.2-r2 4.2.3_p1 4.2.4_p1: ISC Dynamic Host Configuration Protocol (DHCP) client/server
 x11-drivers/nvidia-drivers 375.26-r1: NVIDIA Accelerated Graphics Driver
-x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
-x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
-x11-misc/xsecurelock 9999: X11 screen lock utility with security in mind
-x11-themes/vertex-theme 20160329: A flat theme with transparent elements for GTK+3, GTK+2 and GNOME Shell
