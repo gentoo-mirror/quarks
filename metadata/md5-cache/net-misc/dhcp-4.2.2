@@ -1,4 +1,4 @@
-DEFINED_PHASES=compile configure install postinst preinst prepare unpack
+DEFINED_PHASES=compile config configure install postinst preinst prepare unpack
 DEPEND=selinux? ( sec-policy/selinux-dhcp ) kernel_linux? ( sys-apps/net-tools ) vim-syntax? ( app-vim/dhcpd-syntax ) ldap? ( net-nds/openldap ssl? ( dev-libs/openssl ) )
 DESCRIPTION=ISC Dynamic Host Configuration Protocol (DHCP) client/server
 EAPI=2

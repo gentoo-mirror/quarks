@@ -1,4 +1,4 @@
-DEFINED_PHASES=compile install postinst preinst unpack
+DEFINED_PHASES=compile config install postinst preinst unpack
 DEPEND=selinux? ( sec-policy/selinux-dhcp ) kernel_linux? ( sys-apps/net-tools )
 DESCRIPTION=ISC Dynamic Host Configuration Protocol
 EAPI=0
