@@ -121,12 +121,12 @@ bootstrap() {
 		echo "Press <Ctrl+c> to abort, or <Return> to proceed without extracting stage3 ..."
 		read -r REPLY
 	else
-		STAGE_TARBALL=${GENTOO_MIRROR}/releases/${ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | head -n 1) 
+		STAGE_TARBALL=${GENTOO_MIRROR}/releases/${ARCH}/autobuilds/$(curl -s ${LATEST_STAGE_FILE} | grep -v "^#" | awk '{print $1}' | head -n 1) 
 
 		fetch_file "${STAGE_TARBALL}" "${STAGE_TARBALL}.DIGESTS" || die "Cannot get ${STAGE_TARBALL}"
 
 		echo "Extracting stage3 to ${CHROOT} ..."
-		tar jxpf $(basename ${STAGE_TARBALL}) || die "Extracting stage3 failed"
+		tar xpf $(basename ${STAGE_TARBALL}) || die "Extracting stage3 failed"
 
 		rm -f $(basename ${STAGE_TARBALL})
 	fi
@@ -135,9 +135,9 @@ bootstrap() {
 	PORTAGE_SNAPSHOT="${GENTOO_MIRROR}/releases/snapshots/current/portage-latest.tar.bz2"
 	_PORTAGE_MOUNTED=0
 
-	if [ "x${BIND_PORTAGE}" != "x" ] ; then
+	if [ ${BIND_PORTAGE} -eq 1 ] ; then
 		mkdir -p ${CHROOT}/usr/portage
-		mount --bind ${BIND_PORTAGE} ${CHROOT}/usr/portage || die "Error mounting ${BIND_PORTAGE}"
+		mount --bind /usr/portage ${CHROOT}/usr/portage || die "Error bind mounting /usr/portage"
 
 		# Remember we mounted portage
 		_PORTAGE_MOUNTED=1
@@ -150,7 +150,7 @@ bootstrap() {
 		else
 			fetch_file "${PORTAGE_SNAPSHOT}" "${PORTAGE_SNAPSHOT}.md5sum"
 			echo "Extracting latest portage snapshot to ${CHROOT}/usr ..."
-			tar jxf $(basename ${PORTAGE_SNAPSHOT}) -C "${CHROOT}/usr" || die "Extracting portage snapshot failed"
+			tar xf $(basename ${PORTAGE_SNAPSHOT}) -C "${CHROOT}/usr" || die "Extracting portage snapshot failed"
 			rm -f portage-latest.tar.bz2
 		fi
 	fi
@@ -182,7 +182,7 @@ setup_chroot() {
 # https://www.gentoo.org/doc/en/handbook/handbook-amd64.xml?full=1#book_part1_chap6
 install_gentoo() {
 
-	if [ ${INTERACTIVE} = 1 ]; then
+	if [ ${INTERACTIVE} -eq 1 ]; then
 		echo "Done. Entering chroot environment. All yours..."
 		chroot ${CHROOT} /bin/bash
 	else
@@ -236,7 +236,7 @@ CPUS=$(nproc)
 [ $CPUS -ge 4 ] && JOBS="--jobs $((CPUS/2))"
 EOF
 		# Sync portage if not mounted
-		if [ ${_PORTAGE_MOUNTED} = 0 ]; then
+		if [ ${_PORTAGE_MOUNTED} -eq 0 ]; then
 		cat << 'EOF' >> ${CHROOT}/tmp/install.sh
 echo "Syncing portage snapshot..."
 emerge --sync --quiet
@@ -386,14 +386,14 @@ This script builds a full Gentoo chroot
 OPTIONS:
 -h Show this message
 -a arch, either i686 or x86_64, defaults to uname -m
--p profile, [ hardened | hardened-no-multilib | default *]
+-p profile, [ hardened * | hardened-no-multilib | default ]
 -t The timezone to use, default to UTC
 -r chroot location (default $CHROOT )
 -c local cache (default $LOCAL_CACHE)
 -b bind mount portage tree from, instead of downloading portage snapshot
 -i interactive, enter chroot only, do NOT run install script
 -m use custom make.conf
--s kernel flavor, [ hardened* | gentoo ]
+-s kernel flavor, [ hardened | gentoo* ]
 -k kernel .config used to build custom kernel
 -d debug (set -x)
 EOF
@@ -403,14 +403,14 @@ EOF
 DEBUG=0
 INTERACTIVE=0
 MAKE_CONF=""
-BIND_PORTAGE=""
-while getopts ":a:p:t:r:c:m:b:k:s:dhi" OPTIONS; do
+BIND_PORTAGE=0
+while getopts ":a:p:t:r:c:m:bk:s:dhi" OPTIONS; do
 	case $OPTIONS in
 		a ) ARCH=$OPTARG;;
 		p ) PROFILE=$OPTARG;;
 		t ) TIMEZONE=$OPTARG;;
 		d ) DEBUG=1;;
-		b ) BIND_PORTAGE=$OPTARG;;
+		b ) BIND_PORTAGE=1;;
 		r ) CHROOT=$OPTARG;;
 		c ) LOCAL_CACHE=$OPTARG;;
 		i ) INTERACTIVE=1;;
@@ -430,10 +430,10 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 ARCH=${ARCH-"$(uname -m)"}
-PROFILE=${PROFILE="default"}
+PROFILE=${PROFILE="hardened"}
 TIMEZONE=${TIMEZONE-"UTC"}
 KERNEL_CONF=${KERNEL_CONF-"/usr/src/linux/.config"}
-KERNEL_FLAVOR=${KERNEL_FLAVOR-"hardened"}
+KERNEL_FLAVOR=${KERNEL_FLAVOR-"gentoo"}
 
 if [ "${ARCH}" = "i686" ] ; then
 	# Why do they use x86 here ? :(
