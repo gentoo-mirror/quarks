@@ -1,7 +1,7 @@
 # Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=5
+EAPI=7
 
 EGO_PN="github.com/drone/drone"
 EGIT_COMMIT="416f94afcd1596c8baf276e909acd1009088c695"
@@ -106,15 +106,17 @@ inherit golang-build golang-vcs-snapshot user
 
 ARCHIVE_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="~amd64"
+IUSE="ose"
 
 DESCRIPTION="A Continuous Delivery platform built on Docker, written in Go"
 HOMEPAGE="https://github.com/drone/drone"
 SRC_URI="${ARCHIVE_URI}
 	${EGO_VENDOR_URI}"
-LICENSE="Apache-2.0"
+LICENSE="Apache-2.0 !ose? ( Drone Enterprise License )"
 SLOT="0"
 
-RESTRICT="strip"
+# We build with ldflags -s -w
+RESTRICT="strip mirror"
 
 pkg_setup() {
 	enewgroup ${PN}
@@ -124,13 +126,16 @@ pkg_setup() {
 src_compile() {
 	pushd src/${EGO_PN}
 
-	EGO_BUILD_FLAGS="-tags oss -o ${T}/drone-server -mod=vendor"
+	EGO_BUILD_FLAGS="-o ${T}/drone-server -mod=vendor"
+	if use ose; then
+		EGO_BUILD_FLAGS="$EGO_BUILD_FLAGS -tags oss"
+	fi
 	EGO_PN="${EGO_PN}/cmd/drone-server"
 
 	export CGO_ENABLED=1
 	set -- env GOPATH="${T}:$(get_golibdir_gopath)" \
 		GOCACHE="${T}/go-cache" \
-		go build -v -work -x ${EGO_BUILD_FLAGS} -ldflags "-X ${EGO_PN}/version.VersionDev=build.${PV}.${EGIT_COMMIT:0:7}" "${EGO_PN}"
+		go build -v -work -x ${EGO_BUILD_FLAGS} -ldflags "-s -w -X ${EGO_PN}/version.VersionDev=build.${PV}.${EGIT_COMMIT:0:7}" "${EGO_PN}"
 	echo "$@"
 	"$@" || die
 	popd
@@ -138,8 +143,8 @@ src_compile() {
 
 src_install() {
 	dobin ${T}/drone-server
-	keepdir /var/log/drone /var/lib/drone
-	fowners -R ${PN}:${PN} /var/log/drone /var/lib/drone
+	keepdir /var/log/drone-server /var/lib/drone
+	fowners -R ${PN}:${PN} /var/log/drone-server /var/lib/drone
 	newinitd "${FILESDIR}"/drone-server.initd drone-server
 	newconfd "${FILESDIR}"/drone-server.confd drone-server
 }
