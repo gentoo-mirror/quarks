@@ -53,5 +53,3 @@ media-video/ffmpeg:webp - Enables WebP encoding with media-libs/libwebp.
 media-video/ffmpeg:x265 - Enables HEVC encoding with media-libs/x265.
 media-video/ffmpeg:zimg - Enables media-libs/zimg based scale filter.
 media-video/ffmpeg:zvbi - Enables media-libs/zvbi based teletext decoder.
-net-misc/dhcp:client - Install the dhclient program
-net-misc/dhcp:server - Install the dhcpd and dhcrelay programs
