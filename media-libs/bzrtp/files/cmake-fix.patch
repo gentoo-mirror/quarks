@@ -1,0 +1,11 @@
+--- build/CMakeLists.txt.orig	2019-07-22 09:42:36.746268335 +0100
++++ build/CMakeLists.txt	2019-07-22 09:44:06.927185614 +0100
+@@ -47,7 +47,7 @@
+ 
+ set(CPACK_SOURCE_PACKAGE_FILE_NAME ${CPACK_PACKAGE_FILE_NAME})
+ 
+-bc_generate_rpm_specfile("rpm/bzrtp.spec.cmake" "${PROJECT_SOURCE_DIR}/bzrtp.spec")
++# bc_generate_rpm_specfile("rpm/bzrtp.spec.cmake" "${PROJECT_SOURCE_DIR}/bzrtp.spec")
+ 
+ include(CPack)
+ 
