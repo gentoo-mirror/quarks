@@ -1,1 +1,33 @@
+app-backup/duplicity 0.7.05: Secure backup system using gnupg to encrypt data
 app-crypt/acme-tiny 4.0.4-r1: A tiny, auditable script for Let's Encrypt's ACME Protocol
+app-emulation/dxvk 1.3.1: Vulkan-based D3D11 and D3D10 implementation for Linux / Wine
+app-forensics/regripper 9999: Perl scripts to parse Windows registry files
+dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
+dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
+dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
+dev-util/drone 1.2.3: A Continuous Delivery platform built on Docker, written in Go
+media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
+media-libs/bzrtp 1.0.6 9999: Implementation of ZRTP keys exchange protocol
+media-libs/mediastreamer 2.16.1: Mediastreaming library for telephony application
+media-plugins/mediastreamer-x264 1.5.3: mediastreamer plugin: add H264 support
+media-sound/cava 0.6.0: Console-based Audio Visualizer for ALSA (=CAVA)
+media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
+media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
+media-video/glc 0.5.8: OpenGL & ALSA video capture tool
+net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
+net-im/jitsi-bin 2.11.5602: Secure IM communicator that supports SIP, XMPP, AIM/ICQ, Windows Live, Yahoo
+net-libs/bctoolbox 0.6.0 9999: Utilities library used by Belledonne Communications softwares
+net-libs/ortp 1.0.2: Open Real-time Transport Protocol (RTP, RFC3550) stack
+net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
+net-misc/universalmediaserver 6.7.4 7.0.1: Universal Media Server is a DLNA-compliant UPnP Media Server.
+net-voip/belle-sip 1.6.3: C object oriented SIP Stack.
+net-voip/linphone 3.12.0: Video softphone based on the SIP protocol
+sys-block/partclone 0.2.69: Partition cloning tool
+sys-kernel/dracut 027-r1: Generic initramfs generation tool
+sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9)
+sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
+x11-drivers/nvidia-drivers 375.26-r1: NVIDIA Accelerated Graphics Driver
+x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
+x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
+x11-misc/xsecurelock 9999: X11 screen lock utility with security in mind
+x11-themes/vertex-theme 20160329: A flat theme with transparent elements for GTK+3, GTK+2 and GNOME Shell
