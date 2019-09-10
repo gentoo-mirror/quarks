@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/doitsujin/dxvk"
 if [[ "${PV}" == "9999" ]]; then
 	EGIT_REPO_URI="https://github.com/doitsujin/dxvk.git"
 else
-	SRC_URI="https://github.com/doitsujin/dxvk/archive/v${PV}.tar.gz"
+	SRC_URI="https://github.com/doitsujin/dxvk/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 fi
 
 LICENSE="ZLIB"
@@ -49,8 +49,8 @@ RDEPEND="
 src_prepare() {
 	default
 	sed -i "s|^basedir=.*$|basedir=\"${EPREFIX}\"|" setup_dxvk.sh || die
-	sed -i 's|"x64"|"usr/lib64/dxvk"|' setup_dxvk.sh || die
-	sed -i 's|"x32"|"usr/lib32/dxvk"|' setup_dxvk.sh || die
+	sed -i "s|\"x64\"|\"usr/${LIBDIR_amd64}/dxvk\"|" setup_dxvk.sh || die
+	sed -i "s|\"x32\"|\"usr/${LIBDIR_x86}/dxvk\"|" setup_dxvk.sh || die
 
 	if ! use abi_x86_64; then
 		sed -i '|installFile "$win64_sys_path"|d' setup_dxvk.sh
@@ -63,9 +63,10 @@ src_prepare() {
 
 multilib_src_configure() {
 	local bit="${MULTILIB_ABI_FLAG:8:2}"
+
 	local emesonargs=(
-		--libdir=lib${bit}/dxvk
-		--bindir=lib${bit}/dxvk/bin
+		--libdir=$(get_libdir)/dxvk
+		--bindir=$(get_libdir)/dxvk/bin
 		--cross-file=../${P}/build-wine${bit}.txt
 	)
 	meson_src_configure
