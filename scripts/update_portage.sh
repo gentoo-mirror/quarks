@@ -75,13 +75,8 @@ create_squashfs () {
 customize () {
     echo "Applying local customizations ..."
 
-    # Reenable nvidia
-    perl -i -p -e 's/^(app-admin\/conky nvidia|x11-drivers\/nvidia|nvidia|video_cards_nvidia|vdpau|cuda|opencl)/# disabled by update_portage.sh - $1/;' \
-      ${PORTAGE}/profiles/hardened/linux/package.mask \
-      ${PORTAGE}/profiles/hardened/linux/amd64/package.mask \
-      ${PORTAGE}/profiles/hardened/linux/use.mask \
-      ${PORTAGE}/profiles/hardened/linux/amd64/use.mask \
-      ${PORTAGE}/profiles/hardened/linux/amd64/package.use.mask
+    # Linphone
+    perl -i -p -e 's/^(net-voip\/linphone|net-libs\/libeXosip|net-libs\/libosip)/# disabled by update_portage.sh - $1/;' ${PORTAGE}/profiles/package.mask
 }
 
 cleanup () {
