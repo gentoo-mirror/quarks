@@ -19,7 +19,7 @@ net-im/jitsi-bin 2.11.5602: Secure IM communicator that supports SIP, XMPP, AIM/
 net-libs/bctoolbox 0.6.0 9999: Utilities library used by Belledonne Communications softwares
 net-libs/ortp 1.0.2: Open Real-time Transport Protocol (RTP, RFC3550) stack
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
-net-misc/universalmediaserver 6.7.4 7.0.1: Universal Media Server is a DLNA-compliant UPnP Media Server.
+net-misc/universalmediaserver 7.0.1 9.0.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-voip/belle-sip 1.6.3: C object oriented SIP Stack.
 net-voip/linphone 3.12.0: Video softphone based on the SIP protocol
 sys-block/partclone 0.2.69: Partition cloning tool
