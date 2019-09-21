@@ -23,6 +23,7 @@ net-misc/universalmediaserver 7.0.1 9.0.0: Universal Media Server is a DLNA-comp
 net-voip/belle-sip 1.6.3: C object oriented SIP Stack.
 net-voip/linphone 3.12.0: Video softphone based on the SIP protocol
 sys-block/partclone 0.2.69: Partition cloning tool
+sys-cluster/k3s 0.9.0: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 027-r1: Generic initramfs generation tool
 sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9)
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
