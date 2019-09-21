@@ -7,13 +7,29 @@ url_map = {
     "docker.io": "github.com/docker",
     "k8s.io": "github.com/kubernetes",
     "sigs.k8s.io": "github.com/kubernetes-sigs",
-    "gopkg.in": "github.com/go-"
+    "gopkg.in": "github.com/go-",
+    "go.etcd.io": "github.com/etcd-io"
 }
-with open("go.mod", "r") as data:
-    print("EGO_VENDOR=(")
-    for line in data:
-        pkg = re.match(r"\t(?P<pkg>[^ ]*) (?P<version>[^ ]*)\s.*", line)
+
+with open("go.mod", "r") as file:
+    data = file.read()
+
+# First get replace to ignore requires later
+replaced = set()
+
+replace = re.search(r"replace \(([^\)]*)\)", data)
+if replace:
+    for line in replace.group(1).splitlines():
+        pkg = re.match(r"\t(?P<pkg>[^ ]*) => (?P<version>[^ ]*)\s.*", line)
         if pkg:
+            replaced.add(pkg.group(1))
+
+require = re.search(r"require \(([^\)]*)\)", data)
+if require:
+    print("EGO_VENDOR=(")
+    for line in require.group(1).splitlines():
+        pkg = re.match(r"\t(?P<pkg>[^ ]*) (?P<version>[^ ]*)\s.*", line)
+        if pkg and pkg.group('version') not in replaced:
             ver = re.match(r"v\d.\d.\d-.*-(?P<commit>[^ ]*)", pkg.group('version'))
             if ver:
                 commit = ver.group('commit')
