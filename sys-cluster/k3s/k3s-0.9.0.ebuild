@@ -54,7 +54,7 @@ inherit eutils golang-build golang-vcs-snapshot
 
 ARCHIVE_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="~amd64"
-IUSE="+rootless"
+IUSE="+rootless +traefik"
 
 DESCRIPTION="Lightweight Kubernetes. 5 less than k8s."
 HOMEPAGE="https://k3s.io"
@@ -92,6 +92,8 @@ EOF
 
 	# Disable go generate, create codegen only
 	sed -i -e 's|go generate|go run pkg/codegen/main.go|' scripts/package-cli
+
+	use traefik || rm -f manifests/traefik.yaml
 }
 
 
@@ -116,9 +118,10 @@ src_install() {
 
 	dobin dist/artifacts/k3s
 
-	keepdir /var/lib/rancher
+	newinitd "${FILESDIR}/k3s.openrc" k3s
+	newconfd "${FILESDIR}/k3s.conf" k3s
 
-	popd
+	keepdir /var/lib/rancher
 }
 
 pkg_preinst() {
