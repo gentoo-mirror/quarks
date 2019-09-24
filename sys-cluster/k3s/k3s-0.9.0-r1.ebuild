@@ -54,7 +54,7 @@ inherit eutils golang-build golang-vcs-snapshot
 
 ARCHIVE_URI="https://${EGO_PN}/archive/${EGIT_COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="~amd64"
-IUSE="+rootless +traefik"
+IUSE="rootless symlink"
 
 DESCRIPTION="Lightweight Kubernetes. 5 less than k8s."
 HOMEPAGE="https://k3s.io"
@@ -92,8 +92,6 @@ EOF
 
 	# Disable go generate, create codegen only
 	sed -i -e 's|go generate|go run pkg/codegen/main.go|' scripts/package-cli
-
-	use traefik || rm -f manifests/traefik.yaml
 }
 
 
@@ -121,7 +119,15 @@ src_install() {
 	newinitd "${FILESDIR}/k3s.openrc" k3s
 	newconfd "${FILESDIR}/k3s.conf" k3s
 
-	keepdir /var/lib/rancher
+	into /var/lib/rancher/${PN}
+	newbin "${FILESDIR}/killall_k3s.sh" killall_k3s.sh
+
+	if use symlink; then
+		for cmd in kubectl crictl ctr; do
+			einfo "Linking ${cmd} to k3s"
+			dosym k3s /usr/bin/${cmd}
+		done
+	fi
 }
 
 pkg_preinst() {
@@ -138,5 +144,12 @@ pkg_postinst() {
 		elog "configured for root, run:"
 		elog "usermod --add-subuids 1065536-1131071 <user>"
 		elog "usermod --add-subgids 1065536-1131071 <user>"
+	fi
+}
+
+pkg_setup() {
+	if use rootless; then
+		enewgroup ${PN}
+		enewuser ${PN} -1 -1 /var/lib/rancher/${PN} ${PN}
 	fi
 }
