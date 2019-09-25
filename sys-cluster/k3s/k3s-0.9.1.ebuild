@@ -65,6 +65,7 @@ SLOT="0"
 
 DEPEND="
 	>=dev-lang/go-1.12
+	net-firewall/conntrack-tools
 	rootless? ( app-emulation/slirp4netns )
 "
 
