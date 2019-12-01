@@ -229,6 +229,9 @@ emerge --config sys-libs/timezone-data
 echo "Setting locale to C"
 eselect locale set C
 source /etc/profile
+
+#echo "Setting linker to gold"
+#binutils-config --linker ld.gold
 EOF
 
         # Updating world, using our make.conf and settings
