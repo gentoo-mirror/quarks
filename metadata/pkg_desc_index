@@ -6,21 +6,13 @@ dev-perl/String-Random 0.280.0: Perl module to generate random strings based on 
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
 dev-util/drone 1.2.3: A Continuous Delivery platform built on Docker, written in Go
 media-fonts/awesome 4.3.0: The iconic font designed for use with Twitter Bootstrap
-media-libs/bzrtp 1.0.6 9999: Implementation of ZRTP keys exchange protocol
-media-libs/mediastreamer 2.16.1: Mediastreaming library for telephony application
-media-plugins/mediastreamer-x264 1.5.3: mediastreamer plugin: add H264 support
 media-sound/cava 0.6.0: Console-based Audio Visualizer for ALSA (=CAVA)
 media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
 media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
-net-im/jitsi-bin 2.11.5602: Secure IM communicator that supports SIP, XMPP, AIM/ICQ, Windows Live, Yahoo
-net-libs/bctoolbox 0.6.0 9999: Utilities library used by Belledonne Communications softwares
-net-libs/ortp 1.0.2: Open Real-time Transport Protocol (RTP, RFC3550) stack
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
 net-misc/universalmediaserver 7.0.1 9.0.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
-net-voip/belle-sip 1.6.3: C object oriented SIP Stack.
-net-voip/linphone 3.12.0: Video softphone based on the SIP protocol
 sys-block/partclone 0.2.69: Partition cloning tool
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 027-r1: Generic initramfs generation tool
