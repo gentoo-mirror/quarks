@@ -1,6 +1,5 @@
 app-backup/duplicity 0.7.05: Secure backup system using gnupg to encrypt data
 app-crypt/acme-tiny 4.0.4-r1: A tiny, auditable script for Let's Encrypt's ACME Protocol
-app-forensics/regripper 9999: Perl scripts to parse Windows registry files
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
@@ -20,5 +19,4 @@ sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows use
 x11-drivers/nvidia-drivers 375.26-r1: NVIDIA Accelerated Graphics Driver
 x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
 x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
-x11-misc/xsecurelock 9999: X11 screen lock utility with security in mind
 x11-themes/vertex-theme 20160329: A flat theme with transparent elements for GTK+3, GTK+2 and GNOME Shell
