@@ -10,12 +10,12 @@ media-sound/cava 0.6.1: Console-based audio visualizer for Alsa (MPD and Pulseau
 media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
 media-video/akvcam 1.0.4: akvcam, virtual camera for Linux
-media-video/glc 0.5.8: OpenGL & ALSA video capture tool
 media-video/v4l2loopback 0.12.4: v4l2 loopback device which output is it's own input
 media-video/webcamoid 8.7.1: A full featured webcam capture application
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
 net-misc/universalmediaserver 7.0.1 9.0.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
+net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
 sys-block/partclone 0.2.69: Partition cloning tool
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 027-r1: Generic initramfs generation tool
