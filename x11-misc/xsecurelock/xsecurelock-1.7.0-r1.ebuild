@@ -28,7 +28,6 @@ RDEPEND="
 	x11-libs/libXmu
 	x11-libs/libXrandr
 	x11-libs/libXScrnSaver
-	x11-libs/libXxf86misc
 	xscreensaver? ( x11-misc/xscreensaver )
 	mpv? ( media-video/mpv )
 "
