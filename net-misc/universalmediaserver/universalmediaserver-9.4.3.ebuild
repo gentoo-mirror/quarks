@@ -2,17 +2,20 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
+# Todo:
+# - Add support for none x86_64
+
 EAPI="5"
 
 inherit eutils
 
 DESCRIPTION="Universal Media Server is a DLNA-compliant UPnP Media Server."
 HOMEPAGE="http://www.universalmediaserver.com/"
-SRC_URI="mirror://sourceforge/project/unimediaserver/Official%20Releases/Linux/UMS-${PV}.tgz"
+SRC_URI="https://github.com/UniversalMediaServer/UniversalMediaServer/releases/download/${PV}/UMS-${PV}-x86_64.tgz -> ${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~arm64"
+KEYWORDS="~amd64"
 IUSE="+dcraw +ffmpeg +libmediainfo +libzen +mplayer multiuser tsmuxer +vlc"
 
 DEPEND="app-arch/unzip"
@@ -22,7 +25,7 @@ RDEPEND=">=virtual/jre-1.8.0
 	libmediainfo? ( media-libs/libmediainfo )
 	libzen? ( media-libs/libzen )
 	mplayer? ( media-video/mplayer[encode] )
-	tsmuxer? ( media-video/tsmuxer ) 
+	tsmuxer? ( media-video/tsmuxer )
 	vlc? ( media-video/vlc[encode] ) "
 
 S=${WORKDIR}/ums-${PV}
