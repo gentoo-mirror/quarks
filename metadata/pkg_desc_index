@@ -6,6 +6,7 @@ dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
 dev-util/drone 1.2.3: A Continuous Delivery platform built on Docker, written in Go
+gui-apps/wofi 1.1.2: Launcher/menu program for wlroots based wayland compositors such as sway
 media-sound/cava 0.6.1: Console-based audio visualizer for Alsa (MPD and Pulseaudio)
 media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
