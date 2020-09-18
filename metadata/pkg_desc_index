@@ -1,7 +1,6 @@
 app-backup/duplicity 0.7.05: Secure backup system using gnupg to encrypt data
 app-crypt/acme-tiny 4.0.4-r1: A tiny, auditable script for Let's Encrypt's ACME Protocol
 app-forensics/regripper 2.8: Perl scripts to parse Windows registry files
-app-shells/fzf 0.20.0: A general-purpose command-line fuzzy finder
 app-text/pandoc-bin 2.9.2.1: Universal markup converter
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
@@ -11,7 +10,6 @@ media-sound/cava 0.6.1: Console-based audio visualizer for Alsa (MPD and Pulseau
 media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
 media-video/akvcam 1.0.4: akvcam, virtual camera for Linux
-media-video/v4l2loopback 0.12.4: v4l2 loopback device which output is it's own input
 media-video/webcamoid 8.7.1: A full featured webcam capture application
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
