@@ -20,6 +20,7 @@ sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 027-r1: Generic initramfs generation tool
 sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9)
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
+sys-process/bpytop 1.0.37: Linux/OSX/FreeBSD resource monitor
 x11-drivers/nvidia-drivers 375.26-r1: NVIDIA Accelerated Graphics Driver
 x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
 x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
