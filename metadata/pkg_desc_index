@@ -10,7 +10,6 @@ media-sound/cava 0.6.1: Console-based audio visualizer for Alsa (MPD and Pulseau
 media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD project
 media-video/akvcam 1.0.4: akvcam, virtual camera for Linux
-media-video/webcamoid 8.7.1: A full featured webcam capture application
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/dhcp 3.1.2_p1 3.1.3_p1 4.2.1_p1 4.2.2 4.2.2-r1 4.2.2-r2 4.2.2-r3 4.2.3_p1 4.2.3_p2 4.2.4_p1 4.2.4_p2 4.2.4_p2-r1 4.2.4_p2-r2: ISC Dynamic Host Configuration Protocol (DHCP) client/server
 net-misc/universalmediaserver 9.0.0 9.4.3: Universal Media Server is a DLNA-compliant UPnP Media Server.
