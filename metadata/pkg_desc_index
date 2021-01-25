@@ -17,7 +17,6 @@ net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B
 sys-block/partclone 0.2.69: Partition cloning tool
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 027-r1: Generic initramfs generation tool
-sys-kernel/hardened-sources 3.9.9-r1: Hardened kernel sources (kernel series 3.9)
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
 sys-process/bpytop 1.0.37: Linux/OSX/FreeBSD resource monitor
 x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
