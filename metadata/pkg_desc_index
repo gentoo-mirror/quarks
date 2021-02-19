@@ -13,7 +13,7 @@ net-misc/universalmediaserver 9.0.0 9.4.3: Universal Media Server is a DLNA-comp
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
 sys-block/partclone 0.2.69: Partition cloning tool
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
-sys-kernel/dracut 027-r1: Generic initramfs generation tool
+sys-kernel/dracut 050-r2: Generic initramfs generation tool
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
 sys-process/bpytop 1.0.37: Linux/OSX/FreeBSD resource monitor
 x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
