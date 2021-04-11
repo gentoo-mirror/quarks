@@ -16,7 +16,6 @@ sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 050-r2: Generic initramfs generation tool
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
 sys-process/bpytop 1.0.37: Linux/OSX/FreeBSD resource monitor
-x11-misc/gsimplecal 2.1: A lightweight calendar designed for tint2
 x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
 x11-misc/xsecurelock 1.7.0-r1: X11 screen lock utility with security in mind
 x11-themes/vertex-theme 20160329: A flat theme with transparent elements for GTK+3, GTK+2 and GNOME Shell
