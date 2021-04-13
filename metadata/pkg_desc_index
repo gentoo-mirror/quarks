@@ -10,7 +10,6 @@ media-sound/sndio 1.4.0: small audio and MIDI framework part of the OpenBSD proj
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/universalmediaserver 9.0.0 9.4.3: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
-sys-block/partclone 0.2.69: Partition cloning tool
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 050-r2: Generic initramfs generation tool
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
