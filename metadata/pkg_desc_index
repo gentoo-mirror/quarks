@@ -1,3 +1,4 @@
+app-forensics/regripper 2.8-r1: Perl scripts to parse Windows registry files
 dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
