@@ -1,16 +1,8 @@
-commit 2e091e01691ac86f014d52504f13c6e1cc0990c3
-Author: Stefan Reimer <it@startux.de>
-Date:   Fri Feb 19 13:50:45 2021 +0100
-
-    crypt-ssh module: This modules allows for unlocking LUKS encrypted root filesystems remotely over SSH.
-    By setting rd.luks.ssh and having a /root/.ssh/authorized_keys file dracut will wait
-    until an authorized users logs in and enters a passphrase to open the LUKS device.
-
 diff --git a/modules.d/90crypt/cryptroot-ask.sh b/modules.d/90crypt/cryptroot-ask.sh
-index 1ea77ccc..e73743ef 100755
+index 37a4deea..320eca82 100755
 --- a/modules.d/90crypt/cryptroot-ask.sh
 +++ b/modules.d/90crypt/cryptroot-ask.sh
-@@ -173,15 +173,26 @@ fi
+@@ -174,15 +174,25 @@ fi
  
  if [ $ask_passphrase -ne 0 ]; then
      luks_open="$(command -v cryptsetup) $cryptsetupopts luksOpen"
@@ -21,11 +13,10 @@ index 1ea77ccc..e73743ef 100755
 -        --ply-prompt "Password ($device)" \
 -        --tty-tries 1 \
 -        --tty-cmd "$luks_open -T5 -t $_timeout $device $luksname"
-+
 +    if getargbool 0 rd.luks.ssh; then
 +        # Setup authorized_key file, inject forced cmd for each entry
 +        while read key; do
-+             echo "command=\"$luks_open -T5 $device $luksname && rm -f /tmp/crypt-ssh-block\" $key" >> /root/.ssh/authorized_keys
++            echo "command=\"$luks_open -T5 $device $luksname && rm -f /tmp/crypt-ssh-block\" $key" >> /root/.ssh/authorized_keys
 +        done < /root/.ssh/key.pub
 +        rm -f /root/.ssh/key.pub
 +        # Create flock to prevent initqueue from timing out waiting for someone to login
@@ -44,9 +35,9 @@ index 1ea77ccc..e73743ef 100755
 -    unset _timeout
  fi
  
- if [ "$is_keysource" -ne 0 -a ${luksname##luks-} != "$luksname" ]; then
+ if [ "$is_keysource" -ne 0 -a "${luksname##luks-}" != "$luksname" ]; then
 diff --git a/modules.d/92crypt-ssh/crypt-ssh-cleanup.sh b/modules.d/92crypt-ssh/crypt-ssh-cleanup.sh
-new file mode 100644
+new file mode 100755
 index 00000000..03b05d84
 --- /dev/null
 +++ b/modules.d/92crypt-ssh/crypt-ssh-cleanup.sh
@@ -98,7 +89,7 @@ index 00000000..4fd2aadf
 +    inst_hook cleanup 99 "$moddir/crypt-ssh-cleanup.sh"
 +}
 diff --git a/modules.d/92crypt-ssh/start-ssh.sh b/modules.d/92crypt-ssh/start-ssh.sh
-new file mode 100644
+new file mode 100755
 index 00000000..ac1c5ec3
 --- /dev/null
 +++ b/modules.d/92crypt-ssh/start-ssh.sh

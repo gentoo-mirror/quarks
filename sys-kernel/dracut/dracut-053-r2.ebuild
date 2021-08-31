@@ -1,4 +1,4 @@
-# Copyright 1999-2020 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -58,23 +58,14 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-DOCS=( AUTHORS HACKING NEWS README.md README.generic README.kernel README.modules
-	README.testsuite TODO )
+DOCS=( AUTHORS README.md README.generic README.kernel )
 
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/050-Makefile-merge-main-version-and-git-version-earlier.patch
-	"${FILESDIR}"/050-dracut.sh-don-t-call-fsfreeze-on-subvol-of-root-file.patch
-	"${FILESDIR}"/050-Makefile-fix-VERSION-again.patch
-	"${FILESDIR}"/050-btrfs-force-preload-btrfs-module.patch
-	"${FILESDIR}"/050-network-manager-ensure-that-nm-run.sh-is-executed-wh.patch
-	"${FILESDIR}"/050-dracut-lib.sh-quote-variables-in-parameter-expansion.patch
-	"${FILESDIR}"/050-busybox-module-fix.patch
-	"${FILESDIR}"/050-systemd-remove-obsolete-syslog-parameter.patch
-	"${FILESDIR}"/050-lvm-fix-removal-of-pvscan-from-udev-rules.patch
+	"${FILESDIR}"/053-network-manager.patch
 	"${FILESDIR}"/gentoo-ldconfig-paths.patch
-    "${FILESDIR}"/crypt-ssh-luks.patch
+	"${FILESDIR}"/crypt-ssh-luks.patch
 )
 
 src_configure() {
@@ -98,9 +89,6 @@ src_configure() {
 
 src_install() {
 	default
-
-	insinto /etc/logrotate.d
-	newins dracut.logrotate dracut
 
 	docinto html
 	dodoc dracut.html
@@ -134,9 +122,6 @@ pkg_postinst() {
 		ewarn ""
 	fi
 
-	elog "To get additional features, a number of optional runtime"
-	elog "dependencies may be installed:"
-	elog ""
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"
