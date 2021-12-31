@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/dracutdevs/dracut"
 else
 	[[ "${PV}" = *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 ~riscv ~sparc x86"
 	SRC_URI="https://www.kernel.org/pub/linux/utils/boot/${PN}/${P}.tar.xz"
 fi
 
@@ -19,10 +19,9 @@ HOMEPAGE="https://dracut.wiki.kernel.org"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="selinux"
+IUSE="selinux test"
 
-# Tests need root privileges, bug #298014
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 RDEPEND="
 	app-arch/cpio
@@ -58,13 +57,15 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-DOCS=( AUTHORS README.md README.generic README.kernel )
-
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/053-network-manager.patch
-	"${FILESDIR}"/gentoo-ldconfig-paths.patch
+	"${FILESDIR}"/055-fix-crypt-remove-quotes-from-cryptsetupopts.patch
+	"${FILESDIR}"/055-fix-base-do-not-quote-initargs-for-switch_root.patch
+	"${FILESDIR}"/055-fix-usrmount-do-not-empty-_dev-variable.patch
+	"${FILESDIR}"/055-tpm2-tss-typo.patch
+	"${FILESDIR}"/055-add-blockfuncs.patch
+	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	"${FILESDIR}"/crypt-ssh-luks.patch
 )
 
@@ -87,7 +88,28 @@ src_configure() {
 	fi
 }
 
+src_test() {
+	if [[ ${EUID} != 0 ]]; then
+		# Tests need root privileges, bug #298014
+		ewarn "Skipping tests: Not running as root."
+	elif [[ ! -w /dev/kvm ]]; then
+		ewarn "Skipping tests: Unable to access /dev/kvm."
+	else
+		emake -C test check
+	fi
+}
+
 src_install() {
+	local DOCS=(
+		AUTHORS
+		NEWS.md
+		README.md
+		docs/README.cross
+		docs/README.generic
+		docs/README.kernel
+		docs/SECURITY.md
+	)
+
 	default
 
 	docinto html
