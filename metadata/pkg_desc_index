@@ -10,7 +10,7 @@ net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/universalmediaserver 9.4.3 10.12.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
-sys-kernel/dracut 053-r2: Generic initramfs generation tool
+sys-kernel/dracut 055-r5: Generic initramfs generation tool
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
 sys-process/bpytop 1.0.37: Linux/OSX/FreeBSD resource monitor
 x11-misc/i3blocks 1.4-r1: highly flexible status line for the i3 window manager
