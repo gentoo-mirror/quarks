@@ -3,8 +3,6 @@ dev-perl/Parse-Win32Registry 1.0: Parse Windows Registry Files
 dev-perl/String-Random 0.280.0: Perl module to generate random strings based on a pattern
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
 dev-util/drone 1.2.3: A Continuous Delivery platform built on Docker, written in Go
-media-sound/cava 0.6.1: Console-based audio visualizer for Alsa (MPD and Pulseaudio)
-media-sound/logitechmediaserver-bin 7.9.1-r1: Logitech Media Server (streaming audio server)
 net-analyzer/dnsenum 1.2.4.2: A perl script to enumerate DNS from a server
 net-misc/universalmediaserver 9.4.3 10.12.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
