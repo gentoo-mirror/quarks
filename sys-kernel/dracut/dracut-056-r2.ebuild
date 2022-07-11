@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 inherit bash-completion-r1 linux-info optfeature systemd toolchain-funcs
 
@@ -10,7 +10,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/dracutdevs/dracut"
 else
 	[[ "${PV}" = *_rc* ]] || \
-	KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~mips ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
 	SRC_URI="https://www.kernel.org/pub/linux/utils/boot/${PN}/${P}.tar.xz"
 fi
 
@@ -60,12 +60,9 @@ BDEPEND="
 QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
-	"${FILESDIR}"/055-fix-crypt-remove-quotes-from-cryptsetupopts.patch
-	"${FILESDIR}"/055-fix-base-do-not-quote-initargs-for-switch_root.patch
-	"${FILESDIR}"/055-fix-usrmount-do-not-empty-_dev-variable.patch
-	"${FILESDIR}"/055-tpm2-tss-typo.patch
-	"${FILESDIR}"/055-add-blockfuncs.patch
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
+	"${FILESDIR}"/056-musl.patch
+	"${FILESDIR}"/056-fix-lvm-add-missing-grep-requirement.patch
 	"${FILESDIR}"/crypt-ssh-luks.patch
 )
 
