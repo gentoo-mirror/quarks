@@ -5,7 +5,7 @@
 # Todo:
 # - Add support for none x86_64
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils
 
@@ -16,22 +16,23 @@ SRC_URI="https://github.com/UniversalMediaServer/UniversalMediaServer/releases/d
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+dcraw +ffmpeg +libmediainfo +libzen +mplayer multiuser tsmuxer +vlc"
+IUSE="+dcraw +ffmpeg +libmediainfo +libzen +mplayer multiuser +vlc"
 
 DEPEND="app-arch/unzip"
-RDEPEND=">=virtual/jre-1.8.0
+RDEPEND=">=virtual/jre-17
 	dcraw? ( media-gfx/dcraw )
 	ffmpeg? ( media-video/ffmpeg[encode] )
 	libmediainfo? ( media-libs/libmediainfo )
 	libzen? ( media-libs/libzen )
 	mplayer? ( media-video/mplayer[encode] )
-	tsmuxer? ( media-video/tsmuxer )
 	vlc? ( media-video/vlc[encode] ) "
 
 S=${WORKDIR}/ums-${PV}
 UMS_HOME=/opt/${PN}
 
 src_prepare() {
+	default
+
 	if use multiuser; then
 		cat > ${PN} <<-EOF
 		#!/bin/sh
@@ -60,7 +61,7 @@ src_prepare() {
 	Categories=Network;
 	EOF
 
-	unzip -j ums.jar resources/images/icon-{32,256}.png || die
+	unzip -j ums.jar resources/images/icon-{32,256}.png || die -n "failed to extract icons" || return ${?}
 }
 
 src_install() {
@@ -70,9 +71,8 @@ src_install() {
 	doexe UMS.sh
 
 	insinto ${UMS_HOME}
-	doins -r ums.jar *.conf documentation plugins renderers *.xml
-	use tsmuxer && dosym /opt/tsmuxer/bin/tsMuxeR ${UMS_HOME}/linux/tsMuxeR
-	dodoc CHANGELOG.txt README.md
+	doins -r ums.jar *.conf documentation renderers web *.xml
+	dodoc CHANGELOG.md README.md
 
 	newicon -s 32 icon-32.png ${PN}.png
 	newicon -s 256 icon-256.png ${PN}.png
