@@ -1,6 +1,7 @@
 app-forensics/regripper 2.8-r1: Perl scripts to parse Windows registry files
 dev-util/bcunit 3.0.2: C Unit Test Framework from Belledonne Comminications
 dev-util/drone 1.2.3: A Continuous Delivery platform built on Docker, written in Go
+net-misc/universalmediaserver 11.2.0: Universal Media Server is a DLNA-compliant UPnP Media Server.
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
 sys-cluster/k3s 0.9.1: Lightweight Kubernetes. 5 less than k8s.
 sys-kernel/dracut 056-r2: Generic initramfs generation tool
