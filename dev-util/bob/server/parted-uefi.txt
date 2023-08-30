@@ -1,0 +1,5 @@
+u MiB
+mklabel gpt
+mkpart efi 1 128
+mkpart luks 128 102400
+set 1 bios_efi on
