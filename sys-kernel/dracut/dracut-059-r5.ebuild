@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit bash-completion-r1 linux-info optfeature systemd toolchain-funcs
+inherit bash-completion-r1 optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
@@ -64,6 +64,11 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
 	"${FILESDIR}"/gentoo-network-r1.patch
+	"${FILESDIR}"/059-kernel-install-uki.patch
+	"${FILESDIR}"/059-uefi-split-usr.patch
+	"${FILESDIR}"/059-uki-systemd-254.patch
+	"${FILESDIR}"/059-gawk.patch
+	"${FILESDIR}"/dracut-059-dmsquash-live.patch
 	"${FILESDIR}"/crypt-ssh-luks.patch
 )
 
@@ -115,33 +120,6 @@ src_install() {
 }
 
 pkg_postinst() {
-	if linux-info_get_any_version && linux_config_exists; then
-		ewarn ""
-		ewarn "If the following test report contains a missing kernel"
-		ewarn "configuration option, you should reconfigure and rebuild your"
-		ewarn "kernel before booting image generated with this Dracut version."
-		ewarn ""
-
-		local CONFIG_CHECK="~BLK_DEV_INITRD ~DEVTMPFS"
-
-		# Kernel configuration options descriptions:
-		local ERROR_DEVTMPFS='CONFIG_DEVTMPFS: "Maintain a devtmpfs filesystem to mount at /dev" '
-		ERROR_DEVTMPFS+='is missing and REQUIRED'
-		local ERROR_BLK_DEV_INITRD='CONFIG_BLK_DEV_INITRD: "Initial RAM filesystem and RAM disk '
-		ERROR_BLK_DEV_INITRD+='(initramfs/initrd) support" is missing and REQUIRED'
-
-		check_extra_config
-		echo
-	else
-		ewarn ""
-		ewarn "Your kernel configuration couldn't be checked."
-		ewarn "Please check manually if following options are enabled:"
-		ewarn ""
-		ewarn "  CONFIG_BLK_DEV_INITRD"
-		ewarn "  CONFIG_DEVTMPFS"
-		ewarn ""
-	fi
-
 	optfeature "Networking support" net-misc/networkmanager
 	optfeature "Legacy networking support" net-misc/curl "net-misc/dhcp[client]" \
 		sys-apps/iproute2 "net-misc/iputils[arping]"
@@ -156,18 +134,26 @@ pkg_postinst() {
 	optfeature \
 		"Allows use of dash instead of default bash (on your own risk)" \
 		app-shells/dash
+	optfeature \
+		"Allows use of busybox instead of default bash (on your own risk)" \
+		sys-apps/busybox
 	optfeature "Support iSCSI" sys-block/open-iscsi
-	optfeature "Support Logical Volume Manager" sys-fs/lvm2
+	optfeature "Support Logical Volume Manager" sys-fs/lvm2[lvm]
 	optfeature "Support MD devices, also known as software RAID devices" \
-		sys-fs/mdadm
+		sys-fs/mdadm sys-fs/dmraid
 	optfeature "Support Device Mapper multipathing" sys-fs/multipath-tools
 	optfeature "Plymouth boot splash"  '>=sys-boot/plymouth-0.8.5-r5'
 	optfeature "Support network block devices" sys-block/nbd
 	optfeature "Support NFS" net-fs/nfs-utils net-nds/rpcbind
 	optfeature \
 		"Install ssh and scp along with config files and specified keys" \
-		net-misc/openssh
+		virtual/openssh
 	optfeature "Enable logging with rsyslog" app-admin/rsyslog
+	optfeature "Support Squashfs" sys-fs/squashfs-tools
+	optfeature "Support TPM 2.0 TSS" app-crypt/tpm2-tools
+	optfeature "Support Bluetooth (experimental)" net-wireless/bluez
+	optfeature "Support BIOS-given device names" sys-apps/biosdevname
+	optfeature "Support network NVMe" sys-apps/nvme-cli
 	optfeature \
 		"Enable rngd service to help generating entropy early during boot" \
 		sys-apps/rng-tools
