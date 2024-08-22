@@ -1,42 +1,43 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit bash-completion-r1 optfeature systemd toolchain-funcs
+inherit bash-completion-r1 edo optfeature systemd toolchain-funcs
 
 if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/dracutdevs/dracut"
+	EGIT_REPO_URI="https://github.com/dracut-ng/dracut-ng"
 else
 	if [[ "${PV}" != *_rc* ]]; then
-		KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv sparc x86"
+		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
 	fi
-	SRC_URI="https://github.com/dracutdevs/dracut/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
+	SRC_URI="https://github.com/dracut-ng/dracut-ng/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
+	S="${WORKDIR}/${PN}-ng-${PV}"
 fi
 
 DESCRIPTION="Generic initramfs generation tool"
-HOMEPAGE="https://github.com/dracutdevs/dracut/wiki"
+HOMEPAGE="https://github.com/dracut-ng/dracut-ng/wiki"
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="selinux test"
-
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	app-arch/cpio
+	app-alternatives/cpio
 	>=app-shells/bash-4.0:0
 	sys-apps/coreutils[xattr(-)]
 	>=sys-apps/kmod-23[tools]
 	|| (
 		>=sys-apps/sysvinit-2.87-r3
 		sys-apps/openrc[sysv-utils(-),selinux?]
+		sys-apps/openrc-navi[sysv-utils(-),selinux?]
 		sys-apps/systemd[sysv-utils]
 		sys-apps/s6-linux-init[sysv-utils(-)]
 	)
 	>=sys-apps/util-linux-2.21
-	virtual/pkgconfig
+	virtual/pkgconfig[native-symlinks(+)]
 	virtual/udev
 
 	elibc_musl? ( sys-libs/fts-standalone )
@@ -63,12 +64,10 @@ QA_MULTILIB_PATHS="usr/lib/dracut/.*"
 
 PATCHES=(
 	"${FILESDIR}"/gentoo-ldconfig-paths-r1.patch
-	"${FILESDIR}"/gentoo-network-r1.patch
-	"${FILESDIR}"/059-kernel-install-uki.patch
-	"${FILESDIR}"/059-uefi-split-usr.patch
-	"${FILESDIR}"/059-uki-systemd-254.patch
-	"${FILESDIR}"/059-gawk.patch
-	"${FILESDIR}"/dracut-059-dmsquash-live.patch
+	# Gentoo specific acct-user and acct-group conf adjustments
+	"${FILESDIR}"/${PN}-103-acct-user-group-gentoo.patch
+	# https://github.com/dracut-ng/dracut-ng/pull/507
+	"${FILESDIR}"/${PN}-103-systemd-udev-256-kmod.patch
 	"${FILESDIR}"/crypt-ssh-luks.patch
 )
 
@@ -82,13 +81,7 @@ src_configure() {
 
 	tc-export CC PKG_CONFIG
 
-	echo ./configure "${myconf[@]}"
-	./configure "${myconf[@]}" || die
-
-	if [[ ${PV} != 9999 && ! -f dracut-version.sh ]] ; then
-		# Source tarball from github doesn't include this file
-		echo "DRACUT_VERSION=${PV}" > dracut-version.sh || die
-	fi
+	edo ./configure "${myconf[@]}"
 }
 
 src_test() {
@@ -107,9 +100,10 @@ src_install() {
 		AUTHORS
 		NEWS.md
 		README.md
+		docs/HACKING.md
 		docs/README.cross
-		docs/README.generic
 		docs/README.kernel
+		docs/RELEASE.md
 		docs/SECURITY.md
 	)
 
@@ -153,8 +147,14 @@ pkg_postinst() {
 	optfeature "Support TPM 2.0 TSS" app-crypt/tpm2-tools
 	optfeature "Support Bluetooth (experimental)" net-wireless/bluez
 	optfeature "Support BIOS-given device names" sys-apps/biosdevname
-	optfeature "Support network NVMe" sys-apps/nvme-cli
+	optfeature "Support network NVMe" sys-apps/nvme-cli app-misc/jq
 	optfeature \
 		"Enable rngd service to help generating entropy early during boot" \
 		sys-apps/rng-tools
+	optfeature "building Unified Kernel Images with dracut (--uefi)" \
+		"sys-apps/systemd[boot]" "sys-apps/systemd-utils[boot]"
+	optfeature "automatically generating an initramfs on each kernel installation" \
+		"sys-kernel/installkernel[dracut]"
+	optfeature "automatically generating an UKI on each kernel installation" \
+		"sys-kernel/installkernel[dracut,uki]"
 }
