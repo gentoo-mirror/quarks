@@ -2,11 +2,11 @@ diff --git a/modules.d/90crypt/cryptroot-ask.sh b/modules.d/90crypt/cryptroot-as
 index 37a4deea..320eca82 100755
 --- a/modules.d/90crypt/cryptroot-ask.sh
 +++ b/modules.d/90crypt/cryptroot-ask.sh
-@@ -174,15 +174,25 @@ fi
- 
+@@ -176,15 +176,25 @@ fi
+
  if [ $ask_passphrase -ne 0 ]; then
      luks_open="$(command -v cryptsetup) $cryptsetupopts luksOpen"
--    _timeout=$(getargs "rd.luks.timeout")
+-    _timeout=$(getarg "rd.luks.timeout")
 -    _timeout=${_timeout:-0}
 -    ask_for_password --ply-tries 5 \
 -        --ply-cmd "$luks_open -T1 $device $luksname" \
@@ -34,8 +34,8 @@ index 37a4deea..320eca82 100755
      unset luks_open
 -    unset _timeout
  fi
- 
- if [ "$is_keysource" -ne 0 -a "${luksname##luks-}" != "$luksname" ]; then
+
+ if [ "$is_keysource" -ne 0 ] && [ "${luksname##luks-}" != "$luksname" ]; then
 diff --git a/modules.d/92crypt-ssh/crypt-ssh-cleanup.sh b/modules.d/92crypt-ssh/crypt-ssh-cleanup.sh
 new file mode 100755
 index 00000000..03b05d84
