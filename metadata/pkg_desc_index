@@ -1,3 +1,4 @@
+net-vpn/openvpn3-cli 3.10.4: Next generation minimal OpenVPN client
 net-wireless/rtl8821cu 20200302: Realtek 8821(*U)/8811CU/8812A/8192E/8814A/8822B/8723(*U)/8188E(**) module for Linux kernel
 sys-kernel/dracut 103-r4: Generic initramfs generation tool
 sys-power/tpc 0.44-r2: TurionPowerControl is a command line tool that allows users to tweak AMD processors parameters.
